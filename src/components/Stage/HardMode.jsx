@@ -34,6 +34,13 @@ function catmullRomPoint(p0, p1, p2, p3, t) {
   )
 }
 
+// 획 좌표 → 픽셀 변환: 가이드라인 안쪽에 맞게 padding 적용
+// pad=0.09 → 좌표 0~1이 캔버스 9%~91% 범위로 매핑됨
+function coordToPx(x, y, w, h, pad = 0.09) {
+  const scale = 1 - 2 * pad
+  return [(x * scale + pad) * w, (y * scale + pad) * h]
+}
+
 // 획 좌표를 Catmull-Rom 스플라인으로 부드럽게 보간한 점 배열 반환
 function getSmoothPoints(stroke, w, h, stepsPerSeg = 20) {
   const n = stroke.length
@@ -43,7 +50,9 @@ function getSmoothPoints(stroke, w, h, stepsPerSeg = 20) {
     const [x2, y2] = stroke[n - 1]
     return Array.from({ length: stepsPerSeg + 1 }, (_, i) => {
       const t = i / stepsPerSeg
-      return [(x1 + (x2 - x1) * t) * w, (y1 + (y2 - y1) * t) * h]
+      const xi = x1 + (x2 - x1) * t
+      const yi = y1 + (y2 - y1) * t
+      return coordToPx(xi, yi, w, h)
     })
   }
   // 3점 이상: Catmull-Rom 곡선
@@ -55,19 +64,18 @@ function getSmoothPoints(stroke, w, h, stepsPerSeg = 20) {
     const p3 = stroke[Math.min(n - 1, i + 2)]
     for (let s = 0; s < stepsPerSeg; s++) {
       const t = s / stepsPerSeg
-      pts.push([
-        catmullRomPoint(p0[0], p1[0], p2[0], p3[0], t) * w,
-        catmullRomPoint(p0[1], p1[1], p2[1], p3[1], t) * h,
-      ])
+      const xi = catmullRomPoint(p0[0], p1[0], p2[0], p3[0], t)
+      const yi = catmullRomPoint(p0[1], p1[1], p2[1], p3[1], t)
+      pts.push(coordToPx(xi, yi, w, h))
     }
   }
-  pts.push([stroke[n - 1][0] * w, stroke[n - 1][1] * h])
+  pts.push(coordToPx(stroke[n - 1][0], stroke[n - 1][1], w, h))
   return pts
 }
 
 function drawGhostLetter(ctx, w, h, label) {
   ctx.save()
-  ctx.font = `bold ${Math.min(w, h) * 0.6}px "Noto Sans KR", sans-serif`
+  ctx.font = `bold ${Math.min(w, h) * 0.82}px "Noto Sans KR", sans-serif`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)'
@@ -93,18 +101,18 @@ function drawFinalGuide(ctx, strokes, w, h) {
     })
     ctx.stroke()
 
-    // Faint number circle at stroke start
-    const [sx, sy] = stroke[0]
+    // Faint number circle at stroke start (padding 적용)
+    const [psx, psy] = coordToPx(stroke[0][0], stroke[0][1], w, h)
     ctx.save()
     ctx.fillStyle = 'rgba(255, 87, 34, 0.5)'
     ctx.beginPath()
-    ctx.arc(sx * w, sy * h, 10, 0, Math.PI * 2)
+    ctx.arc(psx, psy, 10, 0, Math.PI * 2)
     ctx.fill()
     ctx.fillStyle = 'white'
     ctx.font = 'bold 11px sans-serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(String(idx + 1), sx * w, sy * h)
+    ctx.fillText(String(idx + 1), psx, psy)
     ctx.restore()
   })
   ctx.restore()
@@ -139,8 +147,8 @@ function animateStrokes(ctx, strokes, w, h, rafRef, mountedRef, onComplete) {
     }
 
     const stroke = strokes[strokeIdx]
-    const [sx, sy] = stroke[0]
-    drawNumberCircle(sx * w, sy * h, strokeIdx + 1)
+    const [psx, psy] = coordToPx(stroke[0][0], stroke[0][1], w, h)
+    drawNumberCircle(psx, psy, strokeIdx + 1)
 
     setTimeout(() => {
       if (!mountedRef.current) return
