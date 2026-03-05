@@ -61,16 +61,21 @@ export default function RewardModal({ rewardData, character, onNext, onMap, hasN
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 1.2 }}
-        className="space-y-3"
+        className="flex justify-center items-stretch gap-3 w-full"
       >
         {hasNextStage && (
-          <BigButton onClick={onNext} color="#4CAF50">
-            다음 스테이지 ▶
-          </BigButton>
+          <div className="flex-1 flex">
+            <BigButton onClick={onNext} color="#4CAF50" size="md" className="w-full flex-1 flex flex-col items-center justify-center break-keep leading-tight px-1 py-4">
+              <span>다음 스테이지</span>
+              <span className="text-xl mt-1">▶</span>
+            </BigButton>
+          </div>
         )}
-        <BigButton onClick={onMap} color="#2196F3" size="md">
-          월드맵으로
-        </BigButton>
+        <div className="flex-1 flex">
+          <BigButton onClick={onMap} color="#2196F3" size="md" className="w-full flex-1 flex flex-col items-center justify-center break-keep leading-tight px-1 py-4">
+            월드맵으로
+          </BigButton>
+        </div>
       </motion.div>
     </motion.div>
   )

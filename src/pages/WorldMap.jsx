@@ -59,11 +59,11 @@ export default function WorldMapPage() {
       animate={{ opacity: 1 }}
       className="min-h-screen px-4 py-6 bg-gradient-to-b from-blue-100 to-green-50"
     >
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center justify-between mb-6">
         <BackButton to="/" />
         <button
           onClick={() => navigate('/select')}
-          className="flex items-center gap-2 hover:bg-white/50 p-2 rounded-xl transition-colors cursor-pointer -ml-2"
+          className="flex items-center gap-2 hover:bg-white/50 p-2 rounded-xl transition-colors cursor-pointer"
         >
           <span className="text-3xl">{character.emoji}</span>
           <span className="font-bold text-lg">Lv.{growth?.level || 1}</span>
