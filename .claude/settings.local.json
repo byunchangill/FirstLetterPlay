@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vite:*)",
+      "Bash(netstat:*)",
+      "Bash(tasklist:*)",
+      "Bash(gh auth:*)",
+      "Bash(git:*)",
+      "Bash(rm:*)"
+    ]
+  }
+}
