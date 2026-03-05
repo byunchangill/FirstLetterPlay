@@ -16,7 +16,9 @@ export default {
         'wrong': '#EF9A9A',
       },
       fontFamily: {
-        sans: ['"Noto Sans KR"', 'sans-serif'],
+        sans: ['"Gowun Dodum"', 'sans-serif'],
+        jua: ['"Jua"', 'sans-serif'],
+        gaegu: ['"Gaegu"', 'sans-serif'],
       },
       screens: {
         'sm': '375px',

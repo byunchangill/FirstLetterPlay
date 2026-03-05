@@ -144,7 +144,7 @@ export default function StagePage() {
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           <BackButton to={`/world/${area}`} />
-          <span className="font-bold text-lg text-gray-700">
+          <span className="font-jua text-2xl text-gray-700">
             {world.getLabel(item)} 배우기
           </span>
         </div>
@@ -242,33 +242,46 @@ function IntroView({ item, world, character, onStart }) {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -30 }}
-      className="text-center space-y-6 w-full max-w-sm"
+      className="w-full max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20 pt-4"
     >
-      <motion.div
-        animate={{ scale: [1, 1.1, 1] }}
-        transition={{ repeat: Infinity, duration: 2 }}
-        className="text-8xl md:text-9xl font-black text-gray-800"
-      >
-        {label}
-      </motion.div>
+      {/* Left (or Top on Mobile): Letter & Image */}
+      <div className="flex flex-col items-center gap-6">
+        <motion.div
+          animate={{ scale: [1, 1.05, 1], rotate: [0, -2, 2, 0] }}
+          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+          className="font-jua text-[8rem] md:text-[14rem] text-gray-800 leading-none drop-shadow-xl"
+        >
+          {label}
+        </motion.div>
 
-      <div className="text-6xl">
-        {item.image ? '🖼️' : '📝'}
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.3, type: 'spring' }}
+          className="text-7xl md:text-8xl drop-shadow-md bg-white/30 p-4 rounded-3xl"
+        >
+          {item.image ? '🖼️' : '📝'}
+        </motion.div>
       </div>
 
-      <SpeechBubble text={`${label}${character.greetings.learn}`} character={character} />
+      {/* Right (or Bottom on Mobile): Interactions */}
+      <div className="flex flex-col items-center gap-8 w-full max-w-md bg-white/40 p-8 md:p-10 rounded-[2rem] shadow-xl backdrop-blur-sm border border-white/50">
+        <SpeechBubble text={`${label}${character.greetings.learn}`} character={character} />
 
-      <div className="flex justify-center">
-        <AudioButton
-          onClick={() => play(`${world.audioPath}${item.audio}`)}
-          isPlaying={isPlaying}
-          size="lg"
-        />
+        <div className="bg-white/50 p-6 rounded-full shadow-inner">
+          <AudioButton
+            onClick={() => play(`${world.audioPath}${item.audio}`)}
+            isPlaying={isPlaying}
+            size="lg"
+          />
+        </div>
+
+        <div className="w-full flex justify-center mt-2">
+          <BigButton onClick={onStart} color={world.color}>
+            배우기 시작! 🚀
+          </BigButton>
+        </div>
       </div>
-
-      <BigButton onClick={onStart} color={world.color}>
-        배우기 시작! 🚀
-      </BigButton>
     </motion.div>
   )
 }

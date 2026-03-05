@@ -9,7 +9,7 @@ export default function SpeechBubble({ text, character }) {
         animate={{ opacity: 1, y: 0 }}
         className="bg-white rounded-2xl rounded-bl-sm px-4 py-3 shadow-md max-w-[280px]"
       >
-        <p className="text-lg font-medium text-gray-800">{text}</p>
+        <p className="font-gaegu text-[1.3rem] font-bold text-gray-800 leading-tight">{text}</p>
       </motion.div>
     </div>
   )

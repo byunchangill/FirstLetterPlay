@@ -60,7 +60,7 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
         <motion.div
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ repeat: Infinity, duration: 2 }}
-          className="text-7xl font-black text-gray-800"
+          className="font-jua text-[6rem] text-gray-800 leading-none"
         >
           {correctLabel}
         </motion.div>
@@ -79,7 +79,7 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
 
       {/* 4 choices */}
       <div>
-        <p className="text-center text-lg font-bold text-gray-700 mb-3">
+        <p className="font-gaegu text-center text-2xl font-bold text-gray-700 mb-3 leading-tight">
           맞는 글자를 눌러봐!
         </p>
         <div className="grid grid-cols-2 gap-3">
@@ -102,11 +102,11 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
                   answered && choice === selected && choice !== correctLabel
                     ? { x: [0, -5, 5, -5, 0] }
                     : answered && choice === correctLabel
-                    ? { scale: [1, 1.15, 1] }
-                    : {}
+                      ? { scale: [1, 1.15, 1] }
+                      : {}
                 }
                 onClick={() => handleSelect(choice)}
-                className={`${bg} border-3 ${border} rounded-2xl p-4 text-3xl font-black text-gray-800 shadow-md cursor-pointer min-h-[80px] flex items-center justify-center`}
+                className={`${bg} border-3 ${border} rounded-2xl p-4 font-jua text-4xl text-gray-800 shadow-md cursor-pointer min-h-[80px] flex items-center justify-center`}
                 style={{ borderWidth: '3px' }}
               >
                 {choice}

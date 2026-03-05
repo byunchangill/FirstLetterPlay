@@ -35,10 +35,10 @@ export default function HomePage() {
         className="text-center mb-12"
       >
         <div className="text-7xl mb-4">📚</div>
-        <h1 className="text-4xl md:text-5xl font-black text-blue-800 mb-2">
+        <h1 className="font-jua text-4xl md:text-6xl text-blue-800 mb-2">
           FirstLetterPlay
         </h1>
-        <p className="text-xl md:text-2xl text-blue-600 font-medium">
+        <p className="font-gaegu text-2xl text-blue-600 font-bold">
           첫 글자 놀이
         </p>
       </motion.div>

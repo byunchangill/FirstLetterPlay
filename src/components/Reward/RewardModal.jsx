@@ -18,7 +18,7 @@ export default function RewardModal({ rewardData, character, onNext, onMap, hasN
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.2, type: 'spring' }}
-        className="text-4xl font-black text-yellow-600"
+        className="font-jua text-5xl text-yellow-600"
       >
         🎉 잘했어! 🎉
       </motion.div>
@@ -40,13 +40,13 @@ export default function RewardModal({ rewardData, character, onNext, onMap, hasN
             initial={{ scale: 0 }}
             animate={{ scale: [0, 1.3, 1] }}
             transition={{ delay: 1.2 }}
-            className="text-2xl font-black text-yellow-600"
+            className="font-jua text-3xl text-yellow-600"
           >
             ⬆️ Level {newLevel}!
           </motion.div>
         )}
 
-        <p className="text-lg font-bold text-gray-700">+{exp} EXP</p>
+        <p className="font-jua text-xl text-gray-700">+{exp} EXP</p>
 
         <ProgressBar
           current={(newLevel - 1) * 100 + (rewardData.newLevel === newLevel ? exp : 0)}

@@ -12,7 +12,7 @@ export default function BigButton({ children, onClick, color = '#4CAF50', size =
       whileHover={disabled ? {} : { scale: 1.05 }}
       whileTap={disabled ? {} : { scale: 0.95 }}
       onClick={disabled ? undefined : onClick}
-      className={`rounded-2xl font-bold text-white shadow-lg ${sizeClasses[size]} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
+      className={`font-jua rounded-2xl font-bold text-white shadow-lg ${sizeClasses[size]} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
       style={{ backgroundColor: disabled ? '#999' : color }}
     >
       {children}

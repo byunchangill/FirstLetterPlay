@@ -29,7 +29,7 @@ export default function SelectPage() {
       <motion.h1
         initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="text-3xl md:text-4xl font-black text-purple-800 mb-8"
+        className="font-jua text-[2.5rem] md:text-5xl text-purple-800 mb-8"
       >
         친구를 골라줘!
       </motion.h1>
@@ -44,11 +44,10 @@ export default function SelectPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setSelected(char.id)}
-            className={`flex flex-col items-center p-4 rounded-2xl shadow-lg cursor-pointer transition-all ${
-              selected === char.id
+            className={`flex flex-col items-center p-4 rounded-2xl shadow-lg cursor-pointer transition-all ${selected === char.id
                 ? 'ring-4 scale-105'
                 : 'bg-white'
-            }`}
+              }`}
             style={{
               backgroundColor: selected === char.id ? char.bgColor : 'white',
               ringColor: selected === char.id ? char.color : 'transparent',
@@ -57,8 +56,8 @@ export default function SelectPage() {
             }}
           >
             <span className="text-5xl mb-2">{char.emoji}</span>
-            <span className="text-lg font-bold text-gray-800">{char.name}</span>
-            <span className="text-sm text-gray-500">{char.description}</span>
+            <span className="font-jua text-2xl text-gray-800">{char.name}</span>
+            <span className="font-gaegu text-xl text-gray-600">{char.description}</span>
           </motion.button>
         ))}
       </div>

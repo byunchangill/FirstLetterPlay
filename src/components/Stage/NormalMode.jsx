@@ -56,8 +56,8 @@ export default function NormalMode({ item, world, character, questionIndex, onAn
         <SpeechBubble text="맞는 짝을 찾아봐!" character={character} />
 
         <div className="text-center">
-          <span className="text-6xl font-black text-gray-800">{label}</span>
-          <p className="text-lg text-gray-500 mt-1">이 글자의 친구는?</p>
+          <span className="font-jua text-[5rem] text-gray-800 leading-none">{label}</span>
+          <p className="font-gaegu text-xl font-bold text-gray-500 mt-1">이 글자의 친구는?</p>
         </div>
 
         <div className="space-y-3">
@@ -82,7 +82,7 @@ export default function NormalMode({ item, world, character, questionIndex, onAn
                 style={{ borderWidth: '3px', borderColor: answered && isCorrect ? '#4CAF50' : 'transparent' }}
               >
                 <span className="text-3xl">🖼️</span>
-                <span className="text-xl font-bold text-gray-800">{wordDisplay}</span>
+                <span className="font-jua text-2xl text-gray-800">{wordDisplay}</span>
               </motion.button>
             )
           })}

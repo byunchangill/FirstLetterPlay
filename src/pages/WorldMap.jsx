@@ -70,7 +70,7 @@ export default function WorldMapPage() {
         </button>
       </div>
 
-      <h1 className="text-2xl md:text-3xl font-black text-center text-gray-800 mb-6">
+      <h1 className="font-jua text-3xl md:text-4xl text-center text-gray-800 mb-6 drop-shadow-sm">
         어디로 갈까?
       </h1>
 
@@ -92,8 +92,8 @@ export default function WorldMapPage() {
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-4xl">{world.icon}</span>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800">{world.name}</h2>
-                  <p className="text-sm text-gray-600">{world.description}</p>
+                  <h2 className="font-jua text-2xl text-gray-800">{world.name}</h2>
+                  <p className="font-gaegu text-lg text-gray-600 leading-tight">{world.description}</p>
                 </div>
               </div>
               <div className="space-y-2">
@@ -126,7 +126,7 @@ function StageListView({ world, character, growth, getStageStars, isStageUnlocke
       <div className="flex items-center gap-3 mb-6">
         <BackButton to="/world" />
         <span className="text-3xl">{world.icon}</span>
-        <h1 className="text-2xl font-black text-gray-800">{world.name}</h1>
+        <h1 className="font-jua text-3xl text-gray-800">{world.name}</h1>
       </div>
 
       <div className="grid grid-cols-3 md:grid-cols-5 gap-3 max-w-lg mx-auto">
@@ -144,15 +144,15 @@ function StageListView({ world, character, growth, getStageStars, isStageUnlocke
               whileTap={easyUnlocked ? { scale: 0.9 } : {}}
               onClick={() => easyUnlocked && navigate(`/stage/${world.id}/${index}`)}
               className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl shadow-md cursor-pointer ${easyUnlocked
-                  ? 'bg-white'
-                  : 'bg-gray-200 opacity-60 cursor-not-allowed'
+                ? 'bg-white'
+                : 'bg-gray-200 opacity-60 cursor-not-allowed'
                 }`}
               style={easyUnlocked && stars.total > 0 ? { border: `3px solid ${world.color}` } : {}}
             >
               {!easyUnlocked && (
                 <span className="text-2xl">🔒</span>
               )}
-              <span className={`text-2xl md:text-3xl font-black ${easyUnlocked ? 'text-gray-800' : 'text-gray-400'
+              <span className={`font-jua text-3xl md:text-4xl ${easyUnlocked ? 'text-gray-800' : 'text-gray-400'
                 }`}>
                 {label}
               </span>

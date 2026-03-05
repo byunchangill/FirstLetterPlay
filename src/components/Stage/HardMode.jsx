@@ -185,9 +185,9 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
       <SpeechBubble text="빈칸을 채워봐!" character={character} />
 
       <div className="text-center bg-white rounded-2xl p-6 shadow-lg">
-        <p className="text-3xl font-bold text-gray-800">{blankWord}</p>
+        <p className="font-jua text-4xl text-gray-800">{blankWord}</p>
         {item.word && (
-          <p className="text-lg text-gray-500 mt-2">= {item.word}</p>
+          <p className="font-gaegu font-bold text-2xl text-gray-500 mt-2">= {item.word}</p>
         )}
       </div>
 
@@ -203,7 +203,7 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
               whileTap={!answered ? { scale: 0.9 } : {}}
               animate={answered && choice === selected && choice !== label ? { x: [0, -3, 3, -3, 0] } : {}}
               onClick={() => handleSelect(choice)}
-              className={`${bgColor} rounded-xl p-4 shadow-md text-2xl font-black text-gray-800 min-w-[70px] cursor-pointer`}
+              className={`${bgColor} rounded-xl p-4 shadow-md font-jua text-3xl text-gray-800 min-w-[70px] cursor-pointer`}
               style={{
                 borderWidth: '3px',
                 borderColor: answered && choice === label ? '#4CAF50' : 'transparent',
