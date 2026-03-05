@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getWorldById } from '../data/worlds'
@@ -33,7 +33,7 @@ export default function StagePage() {
   const stageIndex = parseInt(index, 10)
   const world = getWorldById(area)
   const { profile, growth, addExp } = useCharacter()
-  const { saveProgress, isStageUnlocked, loadProgress } = useProgress()
+  const { saveProgress, isStageUnlocked, loadProgress, getStageStars } = useProgress()
 
   const character = profile ? getCharacterById(profile.characterId) : null
 
@@ -44,6 +44,7 @@ export default function StagePage() {
   const [stars, setStars] = useState(0)
   const [rewardData, setRewardData] = useState(null)
   const [difficultyIndex, setDifficultyIndex] = useState(0)
+  const wasAlreadyMaxedRef = useRef(false)
 
   useEffect(() => {
     if (!profile || !world) {
@@ -60,6 +61,8 @@ export default function StagePage() {
   const totalQsForDifficulty = QUESTIONS_PER_DIFFICULTY[currentDifficulty]
 
   function handleIntroComplete() {
+    const stageStars = getStageStars(area, stageIndex)
+    wasAlreadyMaxedRef.current = stageStars.total >= 9
     setPhase('easy')
     setDifficultyIndex(0)
     setCurrentQ(0)
@@ -94,12 +97,13 @@ export default function StagePage() {
         setTotalAnswered(0)
       } else {
         // All difficulties complete
-        const expGained = earned * 5
+        const expGained = wasAlreadyMaxedRef.current ? 0 : earned * 5
         setStars(earned)
         addExp(expGained).then(result => {
           setRewardData({
             stars: earned,
             exp: expGained,
+            currentExp: result?.exp ?? 0,
             leveledUp: result?.leveledUp || false,
             newLevel: result?.level || growth?.level || 1,
           })
@@ -141,15 +145,13 @@ export default function StagePage() {
       style={{ background: `linear-gradient(to bottom, ${world.bgColor}, #f8fafc)` }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2">
-          <BackButton to={`/world/${area}`} />
-          <span className="font-jua text-2xl text-gray-700">
-            {world.getLabel(item)} 배우기
-          </span>
-        </div>
+      <div className="relative flex items-center px-4 py-3">
+        <BackButton to={`/world/${area}`} />
+        <span className="absolute left-1/2 -translate-x-1/2 font-jua text-2xl text-gray-700">
+          {world.getLabel(item)} 배우기
+        </span>
         {phase !== 'intro' && phase !== 'reward' && phase !== 'failed' && (
-          <div className="text-sm font-medium text-gray-500 bg-white px-3 py-1 rounded-full">
+          <div className="ml-auto text-sm font-medium text-gray-500 bg-white px-3 py-1 rounded-full">
             {currentDifficulty === 'easy' ? '쉬움' : currentDifficulty === 'normal' ? '보통' : '어려움'}
             {' · '}{currentQ + 1}/{totalQsForDifficulty}
           </div>
@@ -258,9 +260,11 @@ function IntroView({ item, world, character, onStart }) {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.3, type: 'spring' }}
-          className="text-7xl md:text-8xl drop-shadow-md bg-white/30 p-4 rounded-3xl"
         >
-          {item.image ? '🖼️' : '📝'}
+          {item.image
+            ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-48 h-48 md:w-72 md:h-72 object-contain drop-shadow-lg" />
+            : <span className="text-7xl md:text-8xl drop-shadow-md">📝</span>
+          }
         </motion.div>
       </div>
 

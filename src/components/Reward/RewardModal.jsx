@@ -49,7 +49,7 @@ export default function RewardModal({ rewardData, character, onNext, onMap, hasN
         <p className="font-jua text-xl text-gray-700">+{exp} EXP</p>
 
         <ProgressBar
-          current={(newLevel - 1) * 100 + (rewardData.newLevel === newLevel ? exp : 0)}
+          current={rewardData.currentExp}
           total={100}
           color={character.color}
           height="h-4"

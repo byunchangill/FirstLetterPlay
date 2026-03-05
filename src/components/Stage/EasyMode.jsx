@@ -56,7 +56,10 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
     >
       {/* Image + Letter */}
       <div className="text-center">
-        <div className="text-6xl mb-2">🖼️</div>
+        {item.image
+          ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-32 h-32 object-contain mx-auto mb-2" />
+          : <div className="text-6xl mb-2">📝</div>
+        }
         <motion.div
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ repeat: Infinity, duration: 2 }}

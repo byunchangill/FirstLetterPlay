@@ -81,7 +81,10 @@ export default function NormalMode({ item, world, character, questionIndex, onAn
                 className={`w-full ${bgColor} rounded-2xl p-4 shadow-md flex items-center gap-4 cursor-pointer`}
                 style={{ borderWidth: '3px', borderColor: answered && isCorrect ? '#4CAF50' : 'transparent' }}
               >
-                <span className="text-3xl">🖼️</span>
+                {choice.image
+                  ? <img src={`${world.imagePath}${choice.image}`} alt={wordDisplay} className="w-12 h-12 object-contain" />
+                  : <span className="text-3xl">📝</span>
+                }
                 <span className="font-jua text-2xl text-gray-800">{wordDisplay}</span>
               </motion.button>
             )

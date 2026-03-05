@@ -1,7 +1,8 @@
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import SpeechBubble from '../common/SpeechBubble'
 import BigButton from '../common/BigButton'
+import { getStrokeOrder } from '../../data/strokeOrder'
 
 function shuffleArray(arr) {
   const copy = [...arr]
@@ -15,40 +16,239 @@ function shuffleArray(arr) {
 export default function HardMode({ item, world, character, questionIndex, onAnswer }) {
   const label = world.getLabel(item)
 
-  // Alternate between writing (q0) and fill-blank (q1)
   if (questionIndex === 0) {
     return <WritingExercise item={item} world={world} character={character} label={label} onAnswer={onAnswer} />
   }
   return <FillBlankExercise item={item} world={world} character={character} label={label} onAnswer={onAnswer} />
 }
 
+// ── Stroke animation helpers ──────────────────────────────────────────────────
+
+// Catmull-Rom spline: 4개의 제어점 사이를 t(0~1)로 부드럽게 보간
+function catmullRomPoint(p0, p1, p2, p3, t) {
+  return 0.5 * (
+    (2 * p1) +
+    (-p0 + p2) * t +
+    (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t +
+    (-p0 + 3 * p1 - 3 * p2 + p3) * t * t * t
+  )
+}
+
+// 획 좌표를 Catmull-Rom 스플라인으로 부드럽게 보간한 점 배열 반환
+function getSmoothPoints(stroke, w, h, stepsPerSeg = 20) {
+  const n = stroke.length
+  if (n <= 2) {
+    // 2점 직선: 균등 보간
+    const [x1, y1] = stroke[0]
+    const [x2, y2] = stroke[n - 1]
+    return Array.from({ length: stepsPerSeg + 1 }, (_, i) => {
+      const t = i / stepsPerSeg
+      return [(x1 + (x2 - x1) * t) * w, (y1 + (y2 - y1) * t) * h]
+    })
+  }
+  // 3점 이상: Catmull-Rom 곡선
+  const pts = []
+  for (let i = 0; i < n - 1; i++) {
+    const p0 = stroke[Math.max(0, i - 1)]
+    const p1 = stroke[i]
+    const p2 = stroke[i + 1]
+    const p3 = stroke[Math.min(n - 1, i + 2)]
+    for (let s = 0; s < stepsPerSeg; s++) {
+      const t = s / stepsPerSeg
+      pts.push([
+        catmullRomPoint(p0[0], p1[0], p2[0], p3[0], t) * w,
+        catmullRomPoint(p0[1], p1[1], p2[1], p3[1], t) * h,
+      ])
+    }
+  }
+  pts.push([stroke[n - 1][0] * w, stroke[n - 1][1] * h])
+  return pts
+}
+
+function drawGhostLetter(ctx, w, h, label) {
+  ctx.save()
+  ctx.font = `bold ${Math.min(w, h) * 0.6}px "Noto Sans KR", sans-serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)'
+  ctx.lineWidth = 2
+  ctx.setLineDash([8, 8])
+  ctx.strokeText(label, w / 2, h / 2)
+  ctx.restore()
+}
+
+function drawFinalGuide(ctx, strokes, w, h) {
+  ctx.save()
+  ctx.strokeStyle = 'rgba(33, 150, 243, 0.25)'
+  ctx.lineWidth = 5
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  strokes.forEach((stroke, idx) => {
+    // 부드러운 곡선으로 그리기 (원형 획 각짐 방지)
+    const pts = getSmoothPoints(stroke, w, h, 50)
+    ctx.beginPath()
+    pts.forEach(([x, y], i) => {
+      if (i === 0) ctx.moveTo(x, y)
+      else ctx.lineTo(x, y)
+    })
+    ctx.stroke()
+
+    // Faint number circle at stroke start
+    const [sx, sy] = stroke[0]
+    ctx.save()
+    ctx.fillStyle = 'rgba(255, 87, 34, 0.5)'
+    ctx.beginPath()
+    ctx.arc(sx * w, sy * h, 10, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = 'white'
+    ctx.font = 'bold 11px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(String(idx + 1), sx * w, sy * h)
+    ctx.restore()
+  })
+  ctx.restore()
+}
+
+function animateStrokes(ctx, strokes, w, h, rafRef, mountedRef, onComplete) {
+  let strokeIdx = 0
+
+  function drawNumberCircle(x, y, num) {
+    ctx.save()
+    ctx.fillStyle = '#FF5722'
+    ctx.strokeStyle = 'white'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.arc(x, y, 13, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.stroke()
+    ctx.fillStyle = 'white'
+    ctx.font = 'bold 13px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(String(num), x, y)
+    ctx.restore()
+  }
+
+  function nextStroke() {
+    if (!mountedRef.current) return
+    if (strokeIdx >= strokes.length) {
+      drawFinalGuide(ctx, strokes, w, h)
+      onComplete()
+      return
+    }
+
+    const stroke = strokes[strokeIdx]
+    const [sx, sy] = stroke[0]
+    drawNumberCircle(sx * w, sy * h, strokeIdx + 1)
+
+    setTimeout(() => {
+      if (!mountedRef.current) return
+      animateSingleStroke(ctx, stroke, w, h, rafRef, () => {
+        strokeIdx++
+        setTimeout(nextStroke, 250)
+      })
+    }, 350)
+  }
+
+  nextStroke()
+}
+
+function animateSingleStroke(ctx, stroke, w, h, rafRef, onDone) {
+  // 부드러운 곡선 점 미리 계산 (18 steps/seg = 기존 속도 유지)
+  const pts = getSmoothPoints(stroke, w, h, 18)
+  let ptIdx = 1
+
+  ctx.strokeStyle = '#1976D2'
+  ctx.lineWidth = 6
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  ctx.beginPath()
+  ctx.moveTo(pts[0][0], pts[0][1])
+
+  function frame() {
+    if (ptIdx >= pts.length) {
+      ctx.stroke()
+      onDone()
+      return
+    }
+    ctx.lineTo(pts[ptIdx][0], pts[ptIdx][1])
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(pts[ptIdx][0], pts[ptIdx][1])
+    ptIdx++
+    rafRef.current = requestAnimationFrame(frame)
+  }
+  rafRef.current = requestAnimationFrame(frame)
+}
+
+// ── WritingExercise ───────────────────────────────────────────────────────────
+
 function WritingExercise({ item, world, character, label, onAnswer }) {
-  const canvasRef = useRef(null)
+  const drawCanvasRef = useRef(null)
+  const guideCanvasRef = useRef(null)
   const drawingRef = useRef(false)
+  const rafRef = useRef(null)
+  const mountedRef = useRef(true)
   const [hasDrawn, setHasDrawn] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
+
+  const strokes = getStrokeOrder(label)
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    const canvas = guideCanvasRef.current
+    if (!canvas) return
+    startGuideAnimation(canvas)
+  }, [label])
+
+  function startGuideAnimation(canvas) {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    const ctx = canvas.getContext('2d')
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    drawGhostLetter(ctx, canvas.width, canvas.height, label)
+
+    if (!strokes) return
+    setIsAnimating(true)
+    animateStrokes(ctx, strokes, canvas.width, canvas.height, rafRef, mountedRef, () => {
+      if (mountedRef.current) setIsAnimating(false)
+    })
+  }
+
+  function handleReplay() {
+    const guideCanvas = guideCanvasRef.current
+    const drawCanvas = drawCanvasRef.current
+    if (!guideCanvas || isAnimating) return
+    if (drawCanvas) {
+      drawCanvas.getContext('2d').clearRect(0, 0, drawCanvas.width, drawCanvas.height)
+      setHasDrawn(false)
+    }
+    startGuideAnimation(guideCanvas)
+  }
+
+  // ── Drawing on user canvas ──
 
   function getPos(e) {
-    const canvas = canvasRef.current
+    const canvas = drawCanvasRef.current
     if (!canvas) return { x: 0, y: 0 }
     const rect = canvas.getBoundingClientRect()
     if (e.touches && e.touches.length > 0) {
-      return {
-        x: e.touches[0].clientX - rect.left,
-        y: e.touches[0].clientY - rect.top,
-      }
+      return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top }
     }
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    }
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top }
   }
 
   function startDraw(e) {
-    const canvas = canvasRef.current
+    const canvas = drawCanvasRef.current
     if (!canvas) return
-
     canvas.setPointerCapture?.(e.pointerId)
-
     const ctx = canvas.getContext('2d')
     const pos = getPos(e)
     ctx.beginPath()
@@ -63,7 +263,7 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
 
   function draw(e) {
     if (!drawingRef.current) return
-    const canvas = canvasRef.current
+    const canvas = drawCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     const pos = getPos(e)
@@ -75,42 +275,14 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
 
   function stopDraw(e) {
     drawingRef.current = false
-    const canvas = canvasRef.current
-    if (!canvas) return
-    canvas.releasePointerCapture?.(e?.pointerId)
-  }
-
-  function drawGuide(ctx, w, h) {
-    ctx.save()
-    ctx.font = `bold ${Math.min(w, h) * 0.6}px "Noto Sans KR"`
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.strokeStyle = '#ddd'
-    ctx.lineWidth = 2
-    ctx.setLineDash([8, 8])
-    ctx.strokeText(label, w / 2, h / 2)
-    ctx.restore()
+    drawCanvasRef.current?.releasePointerCapture?.(e?.pointerId)
   }
 
   function clearCanvas() {
-    const canvas = canvasRef.current
+    const canvas = drawCanvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    drawGuide(ctx, canvas.width, canvas.height)
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
     setHasDrawn(false)
-  }
-
-  function handleCanvasMount(canvas) {
-    if (!canvas) return
-    canvasRef.current = canvas
-    const ctx = canvas.getContext('2d')
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    drawGuide(ctx, canvas.width, canvas.height)
-  }
-
-  function handleSubmit() {
-    onAnswer(hasDrawn)
   }
 
   return (
@@ -120,18 +292,27 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
       exit={{ opacity: 0, x: -50 }}
       className="w-full max-w-sm space-y-4"
     >
-      <SpeechBubble text={`${label}을 써볼까?`} character={character} />
+      <SpeechBubble text={`${label}을 따라 써볼까?`} character={character} />
 
       <div
-        className="bg-white rounded-2xl shadow-lg p-2 mx-auto cursor-crosshair"
-        style={{ width: 280, height: 280 }}
+        className="bg-white rounded-2xl shadow-lg p-2 mx-auto"
+        style={{ width: 280, height: 280, position: 'relative' }}
       >
+        {/* Guide canvas (bottom): ghost letter + stroke animation */}
         <canvas
-          ref={handleCanvasMount}
+          ref={guideCanvasRef}
           width={270}
           height={270}
           className="rounded-xl"
-          style={{ touchAction: 'none', userSelect: 'none' }}
+          style={{ position: 'absolute', top: 8, left: 8 }}
+        />
+        {/* Draw canvas (top): user's strokes */}
+        <canvas
+          ref={drawCanvasRef}
+          width={270}
+          height={270}
+          className="rounded-xl"
+          style={{ position: 'absolute', top: 8, left: 8, touchAction: 'none', userSelect: 'none', cursor: 'crosshair' }}
           onPointerDown={startDraw}
           onPointerMove={draw}
           onPointerUp={stopDraw}
@@ -139,17 +320,22 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
         />
       </div>
 
-      <div className="flex gap-3 justify-center">
-        <BigButton onClick={clearCanvas} color="#9E9E9E" size="sm">
-          ↩️ 다시
+      <div className="flex gap-2 justify-center flex-wrap">
+        <BigButton onClick={handleReplay} color="#2196F3" size="sm" disabled={isAnimating}>
+          {isAnimating ? '보는 중...' : '획순 보기'}
         </BigButton>
-        <BigButton onClick={handleSubmit} color={world.color} size="sm" disabled={!hasDrawn}>
-          ✅ 완료
+        <BigButton onClick={clearCanvas} color="#9E9E9E" size="sm">
+          ↩ 다시
+        </BigButton>
+        <BigButton onClick={() => onAnswer(hasDrawn)} color={world.color} size="sm" disabled={!hasDrawn}>
+          완료
         </BigButton>
       </div>
     </motion.div>
   )
 }
+
+// ── FillBlankExercise (unchanged) ─────────────────────────────────────────────
 
 function FillBlankExercise({ item, world, character, label, onAnswer }) {
   const [selected, setSelected] = useState(null)

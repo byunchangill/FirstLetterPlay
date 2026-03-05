@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-05T12:25:36.627Z",
+  "lastUpdated": "2026-03-05T16:03:50.532Z",
   "activeFeatures": [
     "FirstLetterPlay",
     "db",
@@ -20,9 +20,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-05T11:45:25.454Z",
-        "lastUpdated": "2026-03-05T12:25:36.627Z"
+        "lastUpdated": "2026-03-05T16:03:50.532Z"
       },
-      "lastFile": "C:\\Users\\chang\\Desktop\\FirstLetterPlay\\vite.config.js"
+      "lastFile": "C:\\Users\\chang\\Desktop\\FirstLetterPlay\\src\\pages\\Stage.jsx"
     },
     "db": {
       "phase": "do",
@@ -59,9 +59,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-05T11:46:36.318Z",
-        "lastUpdated": "2026-03-05T11:47:42.868Z"
+        "lastUpdated": "2026-03-05T15:54:55.688Z"
       },
-      "lastFile": "C:\\Users\\chang\\Desktop\\FirstLetterPlay\\src\\data\\worlds.js"
+      "lastFile": "C:\\Users\\chang\\Desktop\\FirstLetterPlay\\src\\data\\strokeOrder.js"
     },
     "Stage": {
       "phase": "do",
@@ -72,7 +72,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-05T11:50:38.514Z",
-        "lastUpdated": "2026-03-05T12:13:40.128Z"
+        "lastUpdated": "2026-03-05T15:55:45.109Z"
       },
       "lastFile": "C:\\Users\\chang\\Desktop\\FirstLetterPlay\\src\\components\\Stage\\HardMode.jsx"
     },
@@ -85,7 +85,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-05T11:51:43.946Z",
-        "lastUpdated": "2026-03-05T11:51:43.946Z"
+        "lastUpdated": "2026-03-05T15:42:15.557Z"
       },
       "lastFile": "C:\\Users\\chang\\Desktop\\FirstLetterPlay\\src\\components\\Reward\\RewardModal.jsx"
     }
@@ -98,7 +98,7 @@
   "session": {
     "startedAt": "2026-03-05T11:02:40.923Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-05T12:25:36.627Z"
+    "lastActivity": "2026-03-05T16:03:50.532Z"
   },
   "history": [
     {
@@ -307,6 +307,84 @@
     },
     {
       "timestamp": "2026-03-05T12:25:36.627Z",
+      "feature": "FirstLetterPlay",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T15:13:12.179Z",
+      "feature": "FirstLetterPlay",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T15:14:32.881Z",
+      "feature": "Stage",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T15:14:36.363Z",
+      "feature": "Stage",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T15:22:34.932Z",
+      "feature": "FirstLetterPlay",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T15:42:12.012Z",
+      "feature": "FirstLetterPlay",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T15:42:15.557Z",
+      "feature": "Reward",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T15:54:55.688Z",
+      "feature": "data",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T15:55:45.109Z",
+      "feature": "Stage",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T16:03:25.469Z",
+      "feature": "FirstLetterPlay",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T16:03:30.832Z",
+      "feature": "FirstLetterPlay",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T16:03:38.762Z",
+      "feature": "FirstLetterPlay",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T16:03:44.876Z",
+      "feature": "FirstLetterPlay",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-05T16:03:50.532Z",
       "feature": "FirstLetterPlay",
       "phase": "do",
       "action": "updated"

@@ -186,7 +186,7 @@ export const vowels = [
   { letter: 'ㅛ', name: '요', word: '요술봉',     image: 'wand.png',     audio: 'ㅛ.mp3' },
   { letter: 'ㅜ', name: '우', word: '우산',       image: 'umbrella.png', audio: 'ㅜ.mp3' },
   { letter: 'ㅠ', name: '유', word: '유니콘',     image: 'unicorn.png',  audio: 'ㅠ.mp3' },
-  { letter: 'ㅡ', name: '으', word: '으르렁',     image: 'growl.png',    audio: 'ㅡ.mp3' },
+  { letter: 'ㅡ', name: '으', word: '으뜸',     image: 'eutteum.png',    audio: 'ㅡ.mp3' },
   { letter: 'ㅣ', name: '이', word: '이글루',     image: 'igloo.png',    audio: 'ㅣ.mp3' },
 ];
 
