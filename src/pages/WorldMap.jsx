@@ -12,15 +12,16 @@ import StarDisplay from '../components/common/StarDisplay'
 export default function WorldMapPage() {
   const navigate = useNavigate()
   const { area } = useParams()
-  const { profile, growth } = useCharacter()
+  const { profile, growth, loading } = useCharacter()
   const { loadProgress, getStageStars, getAreaStats, isStageUnlocked } = useProgress()
   const [loaded, setLoaded] = useState(false)
 
   const character = profile ? getCharacterById(profile.characterId) : null
 
   useEffect(() => {
+    if (loading) return
     if (!profile) {
-      navigate('/select')
+      navigate('/', { replace: true })
       return
     }
 
@@ -31,9 +32,9 @@ export default function WorldMapPage() {
       setLoaded(true)
     }
     load()
-  }, [profile, navigate, loadProgress])
+  }, [profile, navigate, loadProgress, loading])
 
-  if (!loaded || !character) return null
+  if (loading || !loaded || !character) return null
 
   if (area) {
     const world = getWorldById(area)

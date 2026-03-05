@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import BigButton from '../components/common/BigButton'
@@ -7,7 +8,13 @@ export default function HomePage() {
   const navigate = useNavigate()
   const { hasProfile, loading } = useCharacter()
 
-  if (loading) {
+  useEffect(() => {
+    if (!loading && hasProfile) {
+      navigate('/world', { replace: true })
+    }
+  }, [loading, hasProfile, navigate])
+
+  if (loading || hasProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-blue-50">
         <motion.div
