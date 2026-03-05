@@ -44,9 +44,11 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
   }
 
   function startDraw(e) {
-    e.preventDefault()
     const canvas = canvasRef.current
     if (!canvas) return
+
+    canvas.setPointerCapture?.(e.pointerId)
+
     const ctx = canvas.getContext('2d')
     const pos = getPos(e)
     ctx.beginPath()
@@ -61,7 +63,6 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
 
   function draw(e) {
     if (!drawingRef.current) return
-    e.preventDefault()
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -72,8 +73,11 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
     ctx.moveTo(pos.x, pos.y)
   }
 
-  function stopDraw() {
+  function stopDraw(e) {
     drawingRef.current = false
+    const canvas = canvasRef.current
+    if (!canvas) return
+    canvas.releasePointerCapture?.(e?.pointerId)
   }
 
   function drawGuide(ctx, w, h) {
@@ -127,14 +131,11 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
           width={270}
           height={270}
           className="rounded-xl"
-          style={{ touchAction: 'none' }}
-          onMouseDown={startDraw}
-          onMouseMove={draw}
-          onMouseUp={stopDraw}
-          onMouseLeave={stopDraw}
-          onTouchStart={startDraw}
-          onTouchMove={draw}
-          onTouchEnd={stopDraw}
+          style={{ touchAction: 'none', userSelect: 'none' }}
+          onPointerDown={startDraw}
+          onPointerMove={draw}
+          onPointerUp={stopDraw}
+          onPointerCancel={stopDraw}
         />
       </div>
 
