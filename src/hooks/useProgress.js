@@ -1,29 +1,41 @@
 import { useState, useCallback, useEffect } from 'react'
 import { db } from '../db/dexie'
+import { useCharacter } from '../context/CharacterContext'
 
 export function useProgress() {
+  const { profile } = useCharacter()
+  const characterId = profile?.characterId
   const [progressMap, setProgressMap] = useState({})
 
   const loadProgress = useCallback(async (area) => {
-    const records = await db.progress.where('area').equals(area).toArray()
+    if (!characterId) return []
+    const records = await db.progress
+      .where('characterId')
+      .equals(characterId)
+      .filter(r => r.area === area)
+      .toArray()
+
     const map = {}
     for (const r of records) {
-      const key = `${r.area}-${r.stageIndex}-${r.difficulty}`
+      const key = `${characterId}-${r.area}-${r.stageIndex}-${r.difficulty}`
       map[key] = r
     }
     setProgressMap(prev => ({ ...prev, ...map }))
     return records
-  }, [])
+  }, [characterId])
 
   const getProgress = useCallback((area, stageIndex, difficulty) => {
-    const key = `${area}-${stageIndex}-${difficulty}`
+    if (!characterId) return null
+    const key = `${characterId}-${area}-${stageIndex}-${difficulty}`
     return progressMap[key] || null
-  }, [progressMap])
+  }, [progressMap, characterId])
 
   const saveProgress = useCallback(async (area, stageIndex, difficulty, stars) => {
+    if (!characterId) return
+
     const existing = await db.progress
-      .where('[area+stageIndex+difficulty]')
-      .equals([area, stageIndex, difficulty])
+      .where('[characterId+area+stageIndex+difficulty]')
+      .equals([characterId, area, stageIndex, difficulty])
       .first()
 
     if (existing) {
@@ -36,6 +48,7 @@ export function useProgress() {
       }
     } else {
       await db.progress.add({
+        characterId,
         area,
         stageIndex,
         difficulty,
@@ -46,7 +59,7 @@ export function useProgress() {
     }
 
     await loadProgress(area)
-  }, [loadProgress])
+  }, [loadProgress, characterId])
 
   const isStageUnlocked = useCallback((area, stageIndex, difficulty) => {
     if (stageIndex === 0 && difficulty === 'easy') return true

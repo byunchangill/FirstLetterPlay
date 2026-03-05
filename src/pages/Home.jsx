@@ -50,20 +50,11 @@ export default function HomePage() {
         className="flex flex-col gap-4 w-full max-w-xs"
       >
         <BigButton
-          onClick={() => navigate('/select')}
+          onClick={() => navigate(hasProfile ? '/world' : '/select')}
           color="#4CAF50"
         >
           🎮 시작하기!
         </BigButton>
-
-        {hasProfile && (
-          <BigButton
-            onClick={() => navigate('/world')}
-            color="#2196F3"
-          >
-            ▶ 이어하기
-          </BigButton>
-        )}
       </motion.div>
 
       <motion.div

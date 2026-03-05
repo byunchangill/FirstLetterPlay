@@ -61,10 +61,13 @@ export default function WorldMapPage() {
     >
       <div className="flex items-center gap-3 mb-6">
         <BackButton to="/" />
-        <div className="flex items-center gap-2">
+        <button
+          onClick={() => navigate('/select')}
+          className="flex items-center gap-2 hover:bg-white/50 p-2 rounded-xl transition-colors cursor-pointer -ml-2"
+        >
           <span className="text-3xl">{character.emoji}</span>
           <span className="font-bold text-lg">Lv.{growth?.level || 1}</span>
-        </div>
+        </button>
       </div>
 
       <h1 className="text-2xl md:text-3xl font-black text-center text-gray-800 mb-6">
@@ -140,19 +143,17 @@ function StageListView({ world, character, growth, getStageStars, isStageUnlocke
               transition={{ delay: index * 0.03, type: 'spring' }}
               whileTap={easyUnlocked ? { scale: 0.9 } : {}}
               onClick={() => easyUnlocked && navigate(`/stage/${world.id}/${index}`)}
-              className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl shadow-md cursor-pointer ${
-                easyUnlocked
+              className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl shadow-md cursor-pointer ${easyUnlocked
                   ? 'bg-white'
                   : 'bg-gray-200 opacity-60 cursor-not-allowed'
-              }`}
+                }`}
               style={easyUnlocked && stars.total > 0 ? { border: `3px solid ${world.color}` } : {}}
             >
               {!easyUnlocked && (
                 <span className="text-2xl">🔒</span>
               )}
-              <span className={`text-2xl md:text-3xl font-black ${
-                easyUnlocked ? 'text-gray-800' : 'text-gray-400'
-              }`}>
+              <span className={`text-2xl md:text-3xl font-black ${easyUnlocked ? 'text-gray-800' : 'text-gray-400'
+                }`}>
                 {label}
               </span>
               {easyUnlocked && stars.total > 0 && (

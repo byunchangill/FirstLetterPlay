@@ -14,15 +14,32 @@ export function CharacterProvider({ children }) {
 
   async function loadProfile() {
     try {
-      const profiles = await db.profiles.toArray()
-      if (profiles.length > 0) {
-        const p = profiles[0]
+      const activeSetting = await db.settings.get('activeCharacterId')
+      const activeId = activeSetting?.value
+      let p = null
+
+      if (activeId) {
+        p = await db.profiles.where('characterId').equals(activeId).first()
+      }
+
+      if (!p) {
+        const profiles = await db.profiles.toArray()
+        if (profiles.length > 0) {
+          p = profiles[profiles.length - 1]
+          await db.settings.put({ key: 'activeCharacterId', value: p.characterId })
+        }
+      }
+
+      if (p) {
         setProfile(p)
         const g = await db.characterGrowth
           .where('characterId')
           .equals(p.characterId)
           .first()
         setGrowth(g || null)
+      } else {
+        setProfile(null)
+        setGrowth(null)
       }
     } catch (e) {
       console.error('Failed to load profile:', e)
@@ -32,27 +49,29 @@ export function CharacterProvider({ children }) {
   }
 
   async function selectCharacter(characterId) {
-    await db.profiles.clear()
-    await db.characterGrowth.clear()
-    await db.progress.clear()
+    let p = await db.profiles.where('characterId').equals(characterId).first()
 
-    const id = await db.profiles.add({
-      characterId,
-      createdAt: new Date(),
-    })
+    if (!p) {
+      const id = await db.profiles.add({
+        characterId,
+        createdAt: new Date(),
+      })
+      p = await db.profiles.get(id)
 
-    const growthId = await db.characterGrowth.add({
-      characterId,
-      level: 1,
-      exp: 0,
-      trophies: [],
-    })
+      await db.characterGrowth.add({
+        characterId,
+        level: 1,
+        exp: 0,
+        trophies: [],
+      })
+    }
 
-    const newProfile = await db.profiles.get(id)
-    const newGrowth = await db.characterGrowth.get(growthId)
-    setProfile(newProfile)
-    setGrowth(newGrowth)
-    return newProfile
+    await db.settings.put({ key: 'activeCharacterId', value: characterId })
+    const g = await db.characterGrowth.where('characterId').equals(characterId).first()
+
+    setProfile(p)
+    setGrowth(g)
+    return p
   }
 
   async function addExp(amount) {
