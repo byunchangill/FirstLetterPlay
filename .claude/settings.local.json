@@ -6,7 +6,9 @@
       "Bash(tasklist:*)",
       "Bash(gh auth:*)",
       "Bash(git:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(npm run:*)",
+      "Bash(npm uninstall:*)"
     ]
   }
 }
