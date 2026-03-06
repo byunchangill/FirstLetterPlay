@@ -205,11 +205,11 @@ export default function StagePage() {
               key="failed"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center space-y-6"
+              className="text-center space-y-4 md:space-y-6"
             >
               <SpeechBubble text={character.greetings.tryAgain} character={character} />
-              <div className="space-y-3">
-                <BigButton onClick={handleRetry} color="#FF9800">
+              <div className="space-y-2 md:space-y-3">
+                <BigButton onClick={handleRetry} color="#FF9800" size="md">
                   다시 도전! 💪
                 </BigButton>
                 <BigButton onClick={() => navigate(`/world/${area}`)} color="#9E9E9E" size="md">

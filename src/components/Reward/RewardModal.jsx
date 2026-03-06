@@ -11,14 +11,14 @@ export default function RewardModal({ rewardData, character, onNext, onMap, hasN
       initial={{ opacity: 0, scale: 0.5 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ type: 'spring', stiffness: 200 }}
-      className="text-center space-y-6 w-full max-w-sm"
+      className="text-center space-y-3 md:space-y-6 w-full max-w-sm"
     >
       {/* Celebration */}
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.2, type: 'spring' }}
-        className="font-jua text-5xl text-yellow-600"
+        className="font-jua text-3xl md:text-5xl text-yellow-600"
       >
         🎉 잘했어! 🎉
       </motion.div>
@@ -31,28 +31,28 @@ export default function RewardModal({ rewardData, character, onNext, onMap, hasN
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className="bg-white rounded-2xl p-6 shadow-lg space-y-3"
+        className="bg-white rounded-2xl p-4 md:p-6 shadow-lg space-y-2 md:space-y-3"
       >
-        <div className="text-5xl">{character.emoji}</div>
+        <div className="text-4xl md:text-5xl">{character.emoji}</div>
 
         {leveledUp && (
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: [0, 1.3, 1] }}
             transition={{ delay: 1.2 }}
-            className="font-jua text-3xl text-yellow-600"
+            className="font-jua text-2xl md:text-3xl text-yellow-600"
           >
             ⬆️ Level {newLevel}!
           </motion.div>
         )}
 
-        <p className="font-jua text-xl text-gray-700">+{exp} EXP</p>
+        <p className="font-jua text-lg md:text-xl text-gray-700">+{exp} EXP</p>
 
         <ProgressBar
           current={rewardData.currentExp}
           total={100}
           color={character.color}
-          height="h-4"
+          height="h-3 md:h-4"
         />
       </motion.div>
 

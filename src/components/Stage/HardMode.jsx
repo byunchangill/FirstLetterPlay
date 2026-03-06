@@ -298,7 +298,7 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -50 }}
-      className="w-full max-w-sm space-y-4"
+      className="w-full max-w-sm space-y-2 md:space-y-4"
     >
       <div style={{ width: 280 }} className="mx-auto">
         <SpeechBubble text={`${label}을 따라 써볼까?`} character={character} />
@@ -377,14 +377,14 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -50 }}
-      className="w-full max-w-sm space-y-6"
+      className="w-full max-w-sm space-y-3 md:space-y-6"
     >
       <SpeechBubble text="빈칸을 채워봐!" character={character} />
 
-      <div className="text-center bg-white rounded-2xl p-6 shadow-lg">
-        <p className="font-jua text-4xl text-gray-800">{blankWord}</p>
+      <div className="text-center bg-white rounded-2xl p-4 md:p-6 shadow-lg">
+        <p className="font-jua text-3xl md:text-4xl text-gray-800">{blankWord}</p>
         {item.word && (
-          <p className="font-gaegu font-bold text-2xl text-gray-500 mt-2">= {item.word}</p>
+          <p className="font-gaegu font-bold text-xl md:text-2xl text-gray-500 mt-1 md:mt-2">= {item.word}</p>
         )}
       </div>
 
@@ -400,7 +400,7 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
               whileTap={!answered ? { scale: 0.9 } : {}}
               animate={answered && choice === selected && choice !== label ? { x: [0, -3, 3, -3, 0] } : {}}
               onClick={() => handleSelect(choice)}
-              className={`${bgColor} rounded-xl p-4 shadow-md font-jua text-3xl text-gray-800 min-w-[70px] cursor-pointer`}
+              className={`${bgColor} rounded-xl p-3 md:p-4 shadow-md font-jua text-2xl md:text-3xl text-gray-800 min-w-[60px] md:min-w-[70px] cursor-pointer`}
               style={{
                 borderWidth: '3px',
                 borderColor: answered && choice === label ? '#4CAF50' : 'transparent',

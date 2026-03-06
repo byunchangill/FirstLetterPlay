@@ -52,18 +52,18 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -50 }}
-      className="w-full max-w-sm space-y-6"
+      className="w-full max-w-sm space-y-3 md:space-y-6"
     >
       {/* Image + Letter */}
       <div className="text-center">
         {item.image
-          ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-32 h-32 object-contain mx-auto mb-2" />
-          : <div className="text-6xl mb-2">📝</div>
+          ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-20 h-20 md:w-32 md:h-32 object-contain mx-auto mb-1 md:mb-2" />
+          : <div className="text-5xl md:text-6xl mb-1 md:mb-2">📝</div>
         }
         <motion.div
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ repeat: Infinity, duration: 2 }}
-          className="font-jua text-[6rem] text-gray-800 leading-none"
+          className="font-jua text-[3.5rem] md:text-[6rem] text-gray-800 leading-none"
         >
           {correctLabel}
         </motion.div>
@@ -77,15 +77,16 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
         <AudioButton
           onClick={() => play(`${world.audioPath}${item.audio}`)}
           isPlaying={isPlaying}
+          size="sm"
         />
       </div>
 
       {/* 4 choices */}
       <div>
-        <p className="font-gaegu text-center text-2xl font-bold text-gray-700 mb-3 leading-tight">
+        <p className="font-gaegu text-center text-lg md:text-2xl font-bold text-gray-700 mb-2 leading-tight">
           맞는 글자를 눌러봐!
         </p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2 md:gap-3">
           {choices.map((choice) => {
             let bg = 'bg-white'
             let border = 'border-gray-200'
@@ -109,7 +110,7 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
                       : {}
                 }
                 onClick={() => handleSelect(choice)}
-                className={`${bg} border-3 ${border} rounded-2xl p-4 font-jua text-4xl text-gray-800 shadow-md cursor-pointer min-h-[80px] flex items-center justify-center`}
+                className={`${bg} border-3 ${border} rounded-2xl p-3 md:p-4 font-jua text-3xl md:text-4xl text-gray-800 shadow-md cursor-pointer min-h-[60px] md:min-h-[80px] flex items-center justify-center`}
                 style={{ borderWidth: '3px' }}
               >
                 {choice}
