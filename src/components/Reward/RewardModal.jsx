@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import StarDisplay from '../common/StarDisplay'
 import BigButton from '../common/BigButton'
 import ProgressBar from '../common/ProgressBar'
+import { getCharacterLevel } from '../../data/characters'
 
 export default function RewardModal({ rewardData, character, onNext, onMap, hasNextStage }) {
   const { stars, exp, leveledUp, newLevel } = rewardData
@@ -18,9 +19,10 @@ export default function RewardModal({ rewardData, character, onNext, onMap, hasN
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.2, type: 'spring' }}
-        className="font-jua text-3xl md:text-5xl text-yellow-600"
+        className="font-jua text-3xl md:text-5xl text-yellow-600 flex flex-col items-center gap-2"
       >
-        🎉 잘했어! 🎉
+        <img src="/images/ui/trophy.png" alt="trophy" className="w-16 h-16 md:w-24 md:h-24 object-contain drop-shadow-lg" />
+        잘했어!
       </motion.div>
 
       {/* Stars */}
@@ -33,7 +35,7 @@ export default function RewardModal({ rewardData, character, onNext, onMap, hasN
         transition={{ delay: 0.8 }}
         className="bg-white rounded-2xl p-4 md:p-6 shadow-lg space-y-2 md:space-y-3"
       >
-        <div className="text-4xl md:text-5xl">{character.emoji}</div>
+        <img src={getCharacterLevel(character, newLevel).image} alt={character.name} className="w-20 h-20 md:w-32 md:h-32 object-contain mx-auto drop-shadow-md" />
 
         {leveledUp && (
           <motion.div

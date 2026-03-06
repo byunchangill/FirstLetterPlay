@@ -3,7 +3,7 @@ export const characters = [
     id: 'dino',
     name: '디노',
     emoji: '\uD83E\uDD95',
-    description: '귀여운 아기 공룡',
+    // description: '귀여운 아기 공룡',
     color: '#4CAF50',
     bgColor: '#E8F5E9',
     levels: [
@@ -23,7 +23,7 @@ export const characters = [
     id: 'tobot',
     name: '또봇',
     emoji: '\uD83E\uDD16',
-    description: '변신 로봇 또봇',
+    // description: '변신 로봇 또봇',
     color: '#2196F3',
     bgColor: '#E3F2FD',
     levels: [
@@ -43,7 +43,7 @@ export const characters = [
     id: 'elsa',
     name: '엘사',
     emoji: '\u2744\uFE0F',
-    description: '얼음 공주 엘사',
+    // description: '얼음 공주 엘사',
     color: '#90CAF9',
     bgColor: '#E8EAF6',
     levels: [
@@ -63,7 +63,7 @@ export const characters = [
     id: 'hatchping',
     name: '하츄핑',
     emoji: '\uD83D\uDC97',
-    description: '귀여운 하츄핑',
+    // description: '귀여운 하츄핑',
     color: '#E91E63',
     bgColor: '#FCE4EC',
     levels: [

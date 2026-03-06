@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { worlds, getWorldById } from '../data/worlds'
 import { useCharacter } from '../context/CharacterContext'
 import { useProgress } from '../hooks/useProgress'
-import { getCharacterById } from '../data/characters'
+import { getCharacterById, getCharacterLevel } from '../data/characters'
 import BackButton from '../components/common/BackButton'
 import ProgressBar from '../components/common/ProgressBar'
 import StarDisplay from '../components/common/StarDisplay'
@@ -66,7 +66,7 @@ export default function WorldMapPage() {
           onClick={() => navigate('/select')}
           className="flex items-center gap-2 hover:bg-white/50 p-2 rounded-xl transition-colors cursor-pointer"
         >
-          <span className="text-3xl">{character.emoji}</span>
+          <img src={getCharacterLevel(character, growth?.level).image} alt={character.name} className="w-10 h-10 object-contain drop-shadow-sm" />
           <span className="font-bold text-lg">Lv.{growth?.level || 1}</span>
         </button>
       </div>
@@ -87,26 +87,35 @@ export default function WorldMapPage() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate(`/world/${world.id}`)}
-              className="p-5 rounded-2xl shadow-lg text-left cursor-pointer"
-              style={{ backgroundColor: world.bgColor }}
+              className="p-5 rounded-2xl shadow-lg border border-white/40 text-left cursor-pointer relative overflow-hidden group"
+              style={{
+                backgroundColor: world.bgColor,
+              }}
             >
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-4xl">{world.icon}</span>
+              <div className="absolute inset-0 bg-white/20 group-hover:bg-transparent transition-colors duration-300"></div>
+              <div className="relative z-10 flex items-center gap-3 mb-3">
+                {world.bgImage ? (
+                  <img src={world.bgImage} alt={world.name} className="w-14 h-14 md:w-16 md:h-16 object-contain drop-shadow-sm rounded-xl bg-white/40 p-1" />
+                ) : (
+                  <span className="text-4xl">{world.icon}</span>
+                )}
                 <div>
                   <h2 className="font-jua text-2xl text-gray-800">{world.name}</h2>
                   <p className="font-gaegu text-lg text-gray-600 leading-tight">{world.description}</p>
                 </div>
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>⭐ {stats.totalStars}/{stats.maxStars}</span>
+              <div className="relative z-10 space-y-2">
+                <div className="flex justify-between text-sm text-gray-700 bg-white/60 px-2 py-0.5 rounded backdrop-blur-sm font-bold">
+                  <span className="flex items-center gap-1"><img src="/images/ui/star-filled.png" className="w-4 h-4" /> {stats.totalStars}/{stats.maxStars}</span>
                   <span>{stats.clearedStages}/{stats.totalStages} 클리어</span>
                 </div>
-                <ProgressBar
-                  current={stats.clearedStages}
-                  total={stats.totalStages}
-                  color={world.color}
-                />
+                <div className="relative z-10">
+                  <ProgressBar
+                    current={stats.clearedStages}
+                    total={stats.totalStages}
+                    color={world.color}
+                  />
+                </div>
               </div>
             </motion.button>
           )
@@ -126,7 +135,11 @@ function StageListView({ world, character, growth, getStageStars, isStageUnlocke
     >
       <div className="flex items-center gap-3 mb-6">
         <BackButton to="/world" />
-        <span className="text-3xl">{world.icon}</span>
+        {world.bgImage ? (
+          <img src={world.bgImage} alt={world.name} className="w-10 h-10 object-contain drop-shadow-sm rounded-lg bg-white/40 p-1" />
+        ) : (
+          <span className="text-3xl">{world.icon}</span>
+        )}
         <h1 className="font-jua text-3xl text-gray-800">{world.name}</h1>
       </div>
 
@@ -151,7 +164,7 @@ function StageListView({ world, character, growth, getStageStars, isStageUnlocke
               style={easyUnlocked && stars.total > 0 ? { border: `3px solid ${world.color}` } : {}}
             >
               {!easyUnlocked && (
-                <span className="text-2xl">🔒</span>
+                <img src="/images/ui/lock.png" alt="locked" className="w-8 h-8 object-contain mb-1 opacity-80" />
               )}
               <span className={`font-jua text-3xl md:text-4xl ${easyUnlocked ? 'text-gray-800' : 'text-gray-400'
                 }`}>
@@ -160,9 +173,7 @@ function StageListView({ world, character, growth, getStageStars, isStageUnlocke
               {easyUnlocked && stars.total > 0 && (
                 <div className="flex gap-0.5 mt-1">
                   {[stars.easy, stars.normal, stars.hard].map((s, di) => (
-                    <span key={di} className="text-xs">
-                      {s > 0 ? '⭐' : '☆'}
-                    </span>
+                    <img key={di} src={s > 0 ? '/images/ui/star-filled.png' : '/images/ui/star-empty.png'} className="w-4 h-4" alt={s > 0 ? 'star' : 'empty star'} />
                   ))}
                 </div>
               )}

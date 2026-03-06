@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import BigButton from '../components/common/BigButton'
 import { useCharacter } from '../context/CharacterContext'
+import { characters } from '../data/characters'
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -41,13 +42,7 @@ export default function HomePage() {
         transition={{ type: 'spring', stiffness: 100 }}
         className="text-center mb-12"
       >
-        <div className="text-7xl mb-4">📚</div>
-        <h1 className="font-jua text-4xl md:text-6xl text-blue-800 mb-2">
-          FirstLetterPlay
-        </h1>
-        <p className="font-gaegu text-2xl text-blue-600 font-bold">
-          첫 글자 놀이
-        </p>
+        <img src="/images/ui/logo.png" alt="FirstLetterPlay" className="w-[80vw] max-w-[400px] mx-auto mb-6 object-contain drop-shadow-xl" />
       </motion.div>
 
       <motion.div
@@ -70,14 +65,15 @@ export default function HomePage() {
         transition={{ delay: 0.8 }}
         className="mt-12 flex gap-4 text-4xl"
       >
-        {['🦕', '🤖', '❄️', '💗'].map((emoji, i) => (
-          <motion.span
-            key={i}
+        {characters.map((char, i) => (
+          <motion.img
+            key={char.id}
+            src={char.levels[0].image}
+            alt={char.name}
+            className="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-md"
             animate={{ y: [0, -10, 0] }}
             transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.2 }}
-          >
-            {emoji}
-          </motion.span>
+          />
         ))}
       </motion.div>
     </motion.div>

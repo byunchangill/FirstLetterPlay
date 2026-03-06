@@ -45,8 +45,8 @@ export default function SelectPage() {
             whileTap={{ scale: 0.95 }}
             onClick={() => setSelected(char.id)}
             className={`flex flex-col items-center p-4 rounded-2xl shadow-lg cursor-pointer transition-all ${selected === char.id
-                ? 'ring-4 scale-105'
-                : 'bg-white'
+              ? 'ring-4 scale-105'
+              : 'bg-white'
               }`}
             style={{
               backgroundColor: selected === char.id ? char.bgColor : 'white',
@@ -55,7 +55,7 @@ export default function SelectPage() {
               border: selected === char.id ? `3px solid ${char.color}` : '3px solid transparent',
             }}
           >
-            <span className="text-5xl mb-2">{char.emoji}</span>
+            <img src={char.levels[0].image} alt={char.name} className="w-16 h-16 md:w-20 md:h-20 object-contain mb-3 drop-shadow-md" />
             <span className="font-jua text-2xl text-gray-800">{char.name}</span>
             <span className="font-gaegu text-xl text-gray-600">{char.description}</span>
           </motion.button>
