@@ -12,12 +12,12 @@
 body {
   font-family: 'Gowun Dodum', sans-serif;
   background-color: #E3F2FD;
-  min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
   -webkit-user-select: none;
   user-select: none;
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100dvh;
 }
