@@ -73,12 +73,29 @@ function getSmoothPoints(stroke, w, h, stepsPerSeg = 20) {
   return pts
 }
 
+// 겹치는 획순 번호 위치 오프셋 계산
+function computeNumberPositions(strokes, w, h) {
+  const positions = strokes.map(stroke => [...coordToPx(stroke[0][0], stroke[0][1], w, h)])
+  for (let i = 0; i < positions.length; i++) {
+    for (let j = i + 1; j < positions.length; j++) {
+      const dx = positions[j][0] - positions[i][0]
+      const dy = positions[j][1] - positions[i][1]
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      if (dist < 24) {
+        positions[i][0] -= 15
+        positions[j][0] += 15
+      }
+    }
+  }
+  return positions
+}
+
 function drawGhostLetter(ctx, w, h, label) {
   ctx.save()
   ctx.font = `bold ${Math.min(w, h) * 0.82}px "Noto Sans KR", sans-serif`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)'
+  ctx.strokeStyle = 'rgba(160, 160, 160, 0.45)'
   ctx.lineWidth = 2
   ctx.setLineDash([8, 8])
   ctx.strokeText(label, w / 2, h / 2)
@@ -86,13 +103,13 @@ function drawGhostLetter(ctx, w, h, label) {
 }
 
 function drawFinalGuide(ctx, strokes, w, h) {
+  const numPos = computeNumberPositions(strokes, w, h)
   ctx.save()
-  ctx.strokeStyle = 'rgba(33, 150, 243, 0.25)'
+  ctx.strokeStyle = 'rgba(33, 150, 243, 0.35)'
   ctx.lineWidth = 5
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
   strokes.forEach((stroke, idx) => {
-    // 부드러운 곡선으로 그리기 (원형 획 각짐 방지)
     const pts = getSmoothPoints(stroke, w, h, 50)
     ctx.beginPath()
     pts.forEach(([x, y], i) => {
@@ -101,25 +118,48 @@ function drawFinalGuide(ctx, strokes, w, h) {
     })
     ctx.stroke()
 
-    // Faint number circle at stroke start (padding 적용)
-    const [psx, psy] = coordToPx(stroke[0][0], stroke[0][1], w, h)
+    // 번호 원 (겹침 방지 오프셋 적용)
+    const [nx, ny] = numPos[idx]
     ctx.save()
     ctx.fillStyle = 'rgba(255, 87, 34, 0.5)'
     ctx.beginPath()
-    ctx.arc(psx, psy, 10, 0, Math.PI * 2)
+    ctx.arc(nx, ny, 10, 0, Math.PI * 2)
     ctx.fill()
     ctx.fillStyle = 'white'
     ctx.font = 'bold 11px sans-serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(String(idx + 1), psx, psy)
+    ctx.fillText(String(idx + 1), nx, ny)
     ctx.restore()
   })
   ctx.restore()
 }
 
+// 획순 가이드 페이드아웃
+function fadeOutGuide(ctx, strokes, w, h, label, rafRef, mountedRef, duration = 1500) {
+  const startTime = performance.now()
+  function frame(currentTime) {
+    if (!mountedRef.current) return
+    const elapsed = currentTime - startTime
+    const alpha = Math.max(0, 1 - elapsed / duration)
+    ctx.clearRect(0, 0, w, h)
+    drawGhostLetter(ctx, w, h, label)
+    if (alpha > 0.01) {
+      ctx.save()
+      ctx.globalAlpha = alpha
+      drawFinalGuide(ctx, strokes, w, h)
+      ctx.restore()
+      rafRef.current = requestAnimationFrame(frame)
+    }
+  }
+  setTimeout(() => {
+    if (mountedRef.current) rafRef.current = requestAnimationFrame(frame)
+  }, 1000)
+}
+
 function animateStrokes(ctx, strokes, w, h, rafRef, mountedRef, onComplete) {
   let strokeIdx = 0
+  const numPos = computeNumberPositions(strokes, w, h)
 
   function drawNumberCircle(x, y, num) {
     ctx.save()
@@ -146,13 +186,12 @@ function animateStrokes(ctx, strokes, w, h, rafRef, mountedRef, onComplete) {
       return
     }
 
-    const stroke = strokes[strokeIdx]
-    const [psx, psy] = coordToPx(stroke[0][0], stroke[0][1], w, h)
-    drawNumberCircle(psx, psy, strokeIdx + 1)
+    const [nx, ny] = numPos[strokeIdx]
+    drawNumberCircle(nx, ny, strokeIdx + 1)
 
     setTimeout(() => {
       if (!mountedRef.current) return
-      animateSingleStroke(ctx, stroke, w, h, rafRef, () => {
+      animateSingleStroke(ctx, strokes[strokeIdx], w, h, rafRef, () => {
         strokeIdx++
         setTimeout(nextStroke, 250)
       })
@@ -167,7 +206,7 @@ function animateSingleStroke(ctx, stroke, w, h, rafRef, onDone) {
   const pts = getSmoothPoints(stroke, w, h, 18)
   let ptIdx = 1
 
-  ctx.strokeStyle = '#1976D2'
+  ctx.strokeStyle = 'rgba(25, 118, 210, 0.55)'
   ctx.lineWidth = 6
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
@@ -226,7 +265,10 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
     if (!strokes) return
     setIsAnimating(true)
     animateStrokes(ctx, strokes, canvas.width, canvas.height, rafRef, mountedRef, () => {
-      if (mountedRef.current) setIsAnimating(false)
+      if (mountedRef.current) {
+        setIsAnimating(false)
+        fadeOutGuide(ctx, strokes, canvas.width, canvas.height, label, rafRef, mountedRef)
+      }
     })
   }
 

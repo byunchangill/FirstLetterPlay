@@ -208,7 +208,7 @@ export default function StagePage() {
               className="text-center space-y-4 md:space-y-6"
             >
               <SpeechBubble text={character.greetings.tryAgain} character={character} />
-              <div className="space-y-2 md:space-y-3">
+              <div className="flex gap-4 justify-center">
                 <BigButton onClick={handleRetry} color="#FF9800" size="md">
                   다시 도전! 💪
                 </BigButton>
