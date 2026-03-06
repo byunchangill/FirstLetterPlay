@@ -321,9 +321,31 @@ function composeWordStrokes(word) {
   return strokes.length > 0 ? strokes : null
 }
 
+// Optical visual centering offsets for lowercase letters (translates Y coordinates)
+// This is used ONLY for single-letter tracing, not for word composition.
+// Negative value moves the letter UP so it sits correctly in the center of the box.
+export const letterYOffset = {
+  a: -0.04, b: 0.00, c: -0.04, d: -0.02, e: -0.04, f: -0.02,
+  g: -0.15, h: 0.00, i: -0.03, j: -0.15, k: 0.00, l: 0.00,
+  m: -0.04, n: -0.04, o: -0.04, p: -0.16, q: -0.15, r: -0.04,
+  s: -0.04, t: -0.02, u: -0.04, v: -0.04, w: -0.04, x: -0.04,
+  y: -0.15, z: -0.04
+}
+
 export function getStrokeOrder(label) {
   if (!label) return null
-  if (strokeOrder[label]) return strokeOrder[label]
+
+  if (strokeOrder[label]) {
+    // If it's a single lowercase letter, apply the fine-tuning visual offset
+    if (label.length === 1 && label >= 'a' && label <= 'z' && letterYOffset[label]) {
+      const offset = letterYOffset[label]
+      return strokeOrder[label].map(stroke =>
+        stroke.map(([x, y]) => [x, y + offset])
+      )
+    }
+    return strokeOrder[label]
+  }
+
   if (label.length > 1) return composeWordStrokes(label)
   return null
 }
