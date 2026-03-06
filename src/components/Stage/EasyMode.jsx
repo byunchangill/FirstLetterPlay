@@ -60,13 +60,6 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
           ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-20 h-20 md:w-32 md:h-32 object-contain mx-auto mb-1 md:mb-2" />
           : <div className="text-5xl md:text-6xl mb-1 md:mb-2">📝</div>
         }
-        <motion.div
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="font-jua text-[3.5rem] md:text-[6rem] text-gray-800 leading-none"
-        >
-          {correctLabel}
-        </motion.div>
       </div>
 
       {/* Character hint */}

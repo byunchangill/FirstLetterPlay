@@ -95,7 +95,7 @@ export default function WorldMapPage() {
               <div className="absolute inset-0 bg-white/20 group-hover:bg-transparent transition-colors duration-300"></div>
               <div className="relative z-10 flex items-center gap-3 mb-3">
                 {world.bgImage ? (
-                  <img src={world.bgImage} alt={world.name} className="w-14 h-14 md:w-16 md:h-16 object-contain drop-shadow-sm rounded-xl bg-white/40 p-1" />
+                  <img src={world.bgImage} alt={world.name} className="w-14 h-14 md:w-16 md:h-16 object-contain drop-shadow-sm" />
                 ) : (
                   <span className="text-4xl">{world.icon}</span>
                 )}
@@ -136,7 +136,7 @@ function StageListView({ world, character, growth, getStageStars, isStageUnlocke
       <div className="flex items-center gap-3 mb-6">
         <BackButton to="/world" />
         {world.bgImage ? (
-          <img src={world.bgImage} alt={world.name} className="w-10 h-10 object-contain drop-shadow-sm rounded-lg bg-white/40 p-1" />
+          <img src={world.bgImage} alt={world.name} className="w-10 h-10 object-contain drop-shadow-sm" />
         ) : (
           <span className="text-3xl">{world.icon}</span>
         )}
