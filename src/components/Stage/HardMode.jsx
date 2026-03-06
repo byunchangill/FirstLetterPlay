@@ -290,8 +290,13 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
   const drawingRef = useRef(false)
   const rafRef = useRef(null)
   const mountedRef = useRef(true)
+
+  const drawnPathsRef = useRef([])
+  const currentPathRef = useRef([])
+
   const [hasDrawn, setHasDrawn] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [feedback, setFeedback] = useState(null)
 
   const strokes = getStrokeOrder(label)
 
@@ -356,12 +361,14 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
     const pos = getPos(e)
     ctx.beginPath()
     ctx.moveTo(pos.x, pos.y)
-    ctx.lineWidth = 8
+    ctx.lineWidth = 12
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
     ctx.strokeStyle = '#333'
     drawingRef.current = true
     setHasDrawn(true)
+
+    currentPathRef.current = [pos]
   }
 
   function draw(e) {
@@ -374,11 +381,19 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
     ctx.stroke()
     ctx.beginPath()
     ctx.moveTo(pos.x, pos.y)
+
+    currentPathRef.current.push(pos)
   }
 
   function stopDraw(e) {
+    if (!drawingRef.current) return
     drawingRef.current = false
     drawCanvasRef.current?.releasePointerCapture?.(e?.pointerId)
+
+    if (currentPathRef.current.length > 0) {
+      drawnPathsRef.current.push([...currentPathRef.current])
+      currentPathRef.current = []
+    }
   }
 
   function clearCanvas() {
@@ -386,6 +401,84 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
     if (!canvas) return
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
     setHasDrawn(false)
+    setFeedback(null)
+    drawnPathsRef.current = []
+    currentPathRef.current = []
+  }
+
+  function checkAccuracy() {
+    if (!strokes) return true // no guide, auto pass
+
+    const w = drawCanvasRef.current.width
+    const h = drawCanvasRef.current.height
+
+    let totalGuidePoints = 0
+    let coveredGuidePoints = 0
+    const hitRadius = 25 // 25px tolerance for accuracy
+
+    strokes.forEach(stroke => {
+      // Sample guide points along the original Catmull-Rom path
+      const pts = getSmoothPoints(stroke, w, h, 20)
+      totalGuidePoints += pts.length
+
+      pts.forEach(guidePt => {
+        let isCovered = false
+        for (const path of drawnPathsRef.current) {
+          for (const drawnPt of path) {
+            const dx = guidePt[0] - drawnPt.x
+            const dy = guidePt[1] - drawnPt.y
+            if (dx * dx + dy * dy <= hitRadius * hitRadius) {
+              isCovered = true
+              break
+            }
+          }
+          if (isCovered) break
+        }
+        if (isCovered) coveredGuidePoints++
+      })
+    })
+
+    const accuracy = coveredGuidePoints / totalGuidePoints
+
+    // Penalize scribbling: measure user's drawn distance vs guide distance
+    let drawnLength = 0
+    drawnPathsRef.current.forEach(path => {
+      for (let i = 1; i < path.length; i++) {
+        const dx = path[i].x - path[i - 1].x
+        const dy = path[i].y - path[i - 1].y
+        drawnLength += Math.sqrt(dx * dx + dy * dy)
+      }
+    })
+
+    let guideLength = 0
+    strokes.forEach(stroke => {
+      const pts = getSmoothPoints(stroke, w, h, 20)
+      for (let i = 1; i < pts.length; i++) {
+        const dx = pts[i][0] - pts[i - 1][0]
+        const dy = pts[i][1] - pts[i - 1][1]
+        guideLength += Math.sqrt(dx * dx + dy * dy)
+      }
+    })
+
+    // If they scribbled more than 3 times the guide length, fail them
+    const isScribble = drawnLength > guideLength * 3
+
+    // Pass condition: at least 70% coverage and not a heavy scribble
+    return (accuracy >= 0.70) && !isScribble
+  }
+
+  function handleComplete() {
+    const isCorrect = checkAccuracy()
+    if (isCorrect) {
+      setFeedback('success')
+      setTimeout(() => onAnswer(true), 600)
+    } else {
+      setFeedback('fail')
+      setTimeout(() => {
+        setFeedback(null)
+        clearCanvas()
+      }, 700)
+    }
   }
 
   return (
@@ -399,8 +492,16 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
         <SpeechBubble text={`${label}을 따라 써볼까?`} character={character} />
       </div>
 
-      <div
-        className="bg-white rounded-2xl shadow-lg p-2 mx-auto"
+      <motion.div
+        animate={
+          feedback === 'fail'
+            ? { x: [-8, 8, -6, 6, -4, 4, 0], backgroundColor: '#ffebee' }
+            : feedback === 'success'
+              ? { scale: [1, 1.05, 1], backgroundColor: '#e8f5e9' }
+              : { backgroundColor: '#ffffff' }
+        }
+        transition={{ duration: 0.4 }}
+        className="rounded-2xl shadow-lg p-2 mx-auto"
         style={{ width: 280, height: 280, position: 'relative' }}
       >
         {/* Guide canvas (bottom): ghost letter + stroke animation */}
@@ -423,7 +524,7 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
           onPointerUp={stopDraw}
           onPointerCancel={stopDraw}
         />
-      </div>
+      </motion.div>
 
       <div className="flex gap-2 justify-center flex-wrap">
         <BigButton onClick={handleReplay} color="#2196F3" size="sm" disabled={isAnimating}>
@@ -432,7 +533,7 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
         <BigButton onClick={clearCanvas} color="#9E9E9E" size="sm">
           ↩ 다시
         </BigButton>
-        <BigButton onClick={() => onAnswer(hasDrawn)} color={world.color} size="sm" disabled={!hasDrawn}>
+        <BigButton onClick={handleComplete} color={world.color} size="sm" disabled={!hasDrawn}>
           완료
         </BigButton>
       </div>
