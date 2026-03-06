@@ -53,9 +53,9 @@ export default function SelectPage() {
           // 캐릭터 카드 버튼 (통통 튀어 나타나요)
           <motion.button
             key={char.id}
-            initial={{ scale: 0, opacity: 0 }}
+            initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: i * 0.1, type: 'spring' }}
+            transition={{ delay: i * 0.1, duration: 0.4, ease: 'easeOut' }}
             whileHover={{ scale: 1.05 }}   // 마우스를 올리면 살짝 커져요
             whileTap={{ scale: 0.95 }}      // 누르면 살짝 작아져요
             onClick={() => setSelected(char.id)}  // 누르면 이 캐릭터가 선택돼요
