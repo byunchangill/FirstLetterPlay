@@ -42,13 +42,18 @@ export default function RewardModal({ rewardData, character, onNext, onMap, hasN
             initial={{ scale: 0 }}
             animate={{ scale: [0, 1.3, 1] }}
             transition={{ delay: 1.2 }}
-            className="font-jua text-2xl md:text-3xl text-yellow-600"
+            className="flex items-center justify-center gap-2 font-jua text-2xl md:text-3xl text-yellow-600"
           >
-            ⬆️ Level {newLevel}!
+            <img src="/images/ui/up.png" alt="up" className="w-8 h-8 md:w-10 md:h-10 object-contain drop-shadow-sm" /> Level {newLevel}!
           </motion.div>
         )}
 
-        <p className="font-jua text-lg md:text-xl text-gray-700">+{exp} EXP</p>
+        <div className="flex justify-between items-end px-1 -mb-1">
+          <p className="font-jua text-lg md:text-xl text-gray-700">+{exp} EXP</p>
+          <p className="font-jua text-base md:text-lg" style={{ color: character.color }}>
+            {Math.round(rewardData.currentExp)}%
+          </p>
+        </div>
 
         <ProgressBar
           current={rewardData.currentExp}

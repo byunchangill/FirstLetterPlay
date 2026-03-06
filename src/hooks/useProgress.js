@@ -86,11 +86,14 @@ export function useProgress() {
     const easy = getProgress(area, stageIndex, 'easy')
     const normal = getProgress(area, stageIndex, 'normal')
     const hard = getProgress(area, stageIndex, 'hard')
+    const easyCount = easy?.stars > 0 ? 1 : 0
+    const normalCount = normal?.stars > 0 ? 1 : 0
+    const hardCount = hard?.stars > 0 ? 1 : 0
     return {
       easy: easy?.stars || 0,
       normal: normal?.stars || 0,
       hard: hard?.stars || 0,
-      total: (easy?.stars || 0) + (normal?.stars || 0) + (hard?.stars || 0),
+      total: easyCount + normalCount + hardCount,
       allCleared: !!(easy?.completed && normal?.completed && hard?.completed),
     }
   }, [getProgress])
@@ -105,7 +108,7 @@ export function useProgress() {
     }
     return {
       totalStars,
-      maxStars: totalStages * 9,
+      maxStars: totalStages * 3,
       clearedStages,
       totalStages,
     }
