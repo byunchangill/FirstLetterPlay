@@ -60,12 +60,34 @@ export const worlds = [
     audioPath: '/audio/alphabet/',
     imagePath: '/images/matching/alphabet/',
     bgImage: '/images/worlds/alphabet-bg.png',
-    getLabel: (item) => `${item.upper}${item.lower}`,
-    getDisplayName: (item) => `${item.upper} ${item.lower} - ${item.word}`,
-    getHint: (item) => `${item.upper} is for ${item.word}!`,
+    hasTabs: true,
+    tabs: [
+      { id: 'upper', name: '대문자', color: '#FF5722' },
+      { id: 'lower', name: '소문자', color: '#FF9800' }
+    ]
   },
 ]
 
+const pseudoWorldsCache = {}
+
 export function getWorldById(id) {
+  if (id && id.startsWith('alphabet_')) {
+    if (pseudoWorldsCache[id]) return pseudoWorldsCache[id]
+
+    const base = worlds.find(w => w.id === 'alphabet')
+    const tab = id.split('_')[1]
+    const pseudo = {
+      ...base,
+      id,
+      parentId: base.id,
+      name: tab === 'upper' ? '알파벳 대문자' : '알파벳 소문자',
+      color: tab === 'upper' ? '#FF5722' : '#FF9800',
+      getLabel: (item) => tab === 'lower' ? item.lower : item.upper,
+      getDisplayName: (item) => `${tab === 'lower' ? item.lower : item.upper} - ${item.word}`,
+      getHint: (item) => `${tab === 'lower' ? item.lower : item.upper} is for ${item.word}!`,
+    }
+    pseudoWorldsCache[id] = pseudo
+    return pseudo
+  }
   return worlds.find(w => w.id === id)
 }

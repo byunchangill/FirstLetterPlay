@@ -147,9 +147,9 @@ export default function StagePage() {
       {/* Header */}
       <div className="relative flex items-center px-4 py-2 flex-shrink-0">
         <BackButton to={`/world/${area}`} />
-        <span className="absolute left-1/2 -translate-x-1/2 font-jua text-2xl text-gray-700">
+        {/* <span className="absolute left-1/2 -translate-x-1/2 font-jua text-2xl text-gray-700">
           {world.getLabel(item)} 배우기
-        </span>
+        </span> */}
         {phase !== 'intro' && phase !== 'reward' && phase !== 'failed' && (
           <div className="ml-auto text-sm font-medium text-gray-500 bg-white px-3 py-1 rounded-full">
             {currentDifficulty === 'easy' ? '쉬움' : currentDifficulty === 'normal' ? '보통' : '어려움'}
@@ -212,7 +212,7 @@ export default function StagePage() {
                 <BigButton onClick={handleRetry} color="#FF9800" size="md">
                   다시 도전! 💪
                 </BigButton>
-                <BigButton onClick={() => navigate(`/world/${area}`)} color="#9E9E9E" size="md">
+                <BigButton onClick={() => navigate(`/world`)} color="#9E9E9E" size="md">
                   월드맵으로
                 </BigButton>
               </div>
@@ -224,7 +224,7 @@ export default function StagePage() {
               rewardData={rewardData}
               character={character}
               onNext={handleNextStage}
-              onMap={() => navigate(`/world/${area}`)}
+              onMap={() => navigate(`/world`)}
               hasNextStage={stageIndex + 1 < world.items.length}
             />
           )}

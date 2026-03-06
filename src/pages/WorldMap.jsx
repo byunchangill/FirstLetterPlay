@@ -27,7 +27,13 @@ export default function WorldMapPage() {
 
     async function load() {
       for (const w of worlds) {
-        await loadProgress(w.id)
+        if (w.hasTabs) {
+          for (const tab of w.tabs) {
+            await loadProgress(`${w.id}_${tab.id}`)
+          }
+        } else {
+          await loadProgress(w.id)
+        }
       }
       setLoaded(true)
     }
@@ -37,14 +43,19 @@ export default function WorldMapPage() {
   if (loading || !loaded || !character) return null
 
   if (area) {
-    const world = getWorldById(area)
-    if (!world) {
+    const worldOrPseudo = getWorldById(area)
+    if (!worldOrPseudo) {
       navigate('/world')
       return null
     }
+    const isPseudo = !!worldOrPseudo.parentId
+    const baseWorld = isPseudo ? getWorldById(worldOrPseudo.parentId) : worldOrPseudo
+    const initialTab = isPseudo ? area.split('_')[1] : null
+
     return (
       <StageListView
-        world={world}
+        world={baseWorld}
+        initialTab={initialTab}
         character={character}
         growth={growth}
         getStageStars={getStageStars}
@@ -77,7 +88,20 @@ export default function WorldMapPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg mx-auto">
         {worlds.map((world, i) => {
-          const stats = getAreaStats(world.id, world.items.length)
+          let stats
+          if (world.hasTabs) {
+            let ts = 0, ms = 0, cs = 0, tt = 0
+            world.tabs.forEach(t => {
+              const s = getAreaStats(`${world.id}_${t.id}`, world.items.length)
+              ts += s.totalStars
+              ms += s.maxStars
+              cs += s.clearedStages
+              tt += s.totalStages
+            })
+            stats = { totalStars: ts, maxStars: ms, clearedStages: cs, totalStages: tt }
+          } else {
+            stats = getAreaStats(world.id, world.items.length)
+          }
           return (
             <motion.button
               key={world.id}
@@ -125,13 +149,18 @@ export default function WorldMapPage() {
   )
 }
 
-function StageListView({ world, character, growth, getStageStars, isStageUnlocked, navigate }) {
+function StageListView({ world, initialTab, character, growth, getStageStars, isStageUnlocked, navigate }) {
+  const [activeTab, setActiveTab] = useState(initialTab || (world.hasTabs ? world.tabs[0].id : null))
+  const isTabbed = world.hasTabs
+  const currentWorldId = activeTab ? `${world.id}_${activeTab}` : world.id
+  const currentWorld = activeTab ? getWorldById(currentWorldId) : world
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="min-h-screen px-4 py-6"
-      style={{ background: `linear-gradient(to bottom, ${world.bgColor}, #f8fafc)` }}
+      style={{ background: `linear-gradient(to bottom, ${currentWorld.bgColor || world.bgColor}, #f8fafc)` }}
     >
       <div className="flex items-center gap-3 mb-6">
         <BackButton to="/world" />
@@ -143,11 +172,26 @@ function StageListView({ world, character, growth, getStageStars, isStageUnlocke
         <h1 className="font-jua text-3xl text-gray-800">{world.name}</h1>
       </div>
 
+      {isTabbed && (
+        <div className="flex gap-2 justify-center mb-6">
+          {world.tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-6 py-2 rounded-full font-jua text-xl transition-all ${activeTab === tab.id ? 'bg-white shadow-md text-gray-800 scale-105' : 'bg-white/40 text-gray-600 hover:bg-white/60'}`}
+              style={activeTab === tab.id ? { color: tab.color } : {}}
+            >
+              {tab.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="grid grid-cols-3 md:grid-cols-5 gap-3 max-w-lg mx-auto">
-        {world.items.map((item, index) => {
-          const stars = getStageStars(world.id, index)
-          const easyUnlocked = isStageUnlocked(world.id, index, 'easy')
-          const label = world.getLabel(item)
+        {currentWorld.items.map((item, index) => {
+          const stars = getStageStars(currentWorld.id, index)
+          const easyUnlocked = isStageUnlocked(currentWorld.id, index, 'easy')
+          const label = currentWorld.getLabel(item)
 
           return (
             <motion.button
@@ -156,12 +200,12 @@ function StageListView({ world, character, growth, getStageStars, isStageUnlocke
               animate={{ scale: 1 }}
               transition={{ delay: index * 0.03, type: 'spring' }}
               whileTap={easyUnlocked ? { scale: 0.9 } : {}}
-              onClick={() => easyUnlocked && navigate(`/stage/${world.id}/${index}`)}
+              onClick={() => easyUnlocked && navigate(`/stage/${currentWorld.id}/${index}`)}
               className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl shadow-md cursor-pointer ${easyUnlocked
                 ? 'bg-white'
                 : 'bg-gray-200 opacity-60 cursor-not-allowed'
                 }`}
-              style={easyUnlocked && stars.total > 0 ? { border: `3px solid ${world.color}` } : {}}
+              style={easyUnlocked && stars.total > 0 ? { border: `3px solid ${currentWorld.color}` } : {}}
             >
               {!easyUnlocked && (
                 <img src="/images/ui/lock.png" alt="locked" className="w-8 h-8 object-contain mb-1 opacity-80" />
@@ -182,7 +226,7 @@ function StageListView({ world, character, growth, getStageStars, isStageUnlocke
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}
                   className="absolute -top-1 -right-1 w-4 h-4 rounded-full"
-                  style={{ backgroundColor: world.color }}
+                  style={{ backgroundColor: currentWorld.color }}
                 />
               )}
             </motion.button>
