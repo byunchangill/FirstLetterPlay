@@ -73,21 +73,44 @@ function getSmoothPoints(stroke, w, h, stepsPerSeg = 20) {
   return pts
 }
 
-// 겹치는 획순 번호 위치 오프셋 계산
+// 겹치는 획순 번호 위치 오프셋 계산 (2D force-directed)
 function computeNumberPositions(strokes, w, h) {
+  const R = 14  // 원 반지름 + 여백
   const positions = strokes.map(stroke => [...coordToPx(stroke[0][0], stroke[0][1], w, h)])
-  for (let i = 0; i < positions.length; i++) {
-    for (let j = i + 1; j < positions.length; j++) {
-      const dx = positions[j][0] - positions[i][0]
-      const dy = positions[j][1] - positions[i][1]
-      const dist = Math.sqrt(dx * dx + dy * dy)
-      if (dist < 24) {
-        positions[i][0] -= 15
-        positions[j][0] += 15
+
+  // 반복적으로 겹치는 원을 2D로 밀어내기
+  for (let pass = 0; pass < 100; pass++) {
+    let anyMoved = false
+    for (let i = 0; i < positions.length; i++) {
+      for (let j = i + 1; j < positions.length; j++) {
+        const dx = positions[j][0] - positions[i][0]
+        const dy = positions[j][1] - positions[i][1]
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        const minDist = R * 2
+        if (dist < minDist) {
+          const push = (minDist - dist) / 2 + 0.5
+          if (dist > 0.1) {
+            positions[i][0] -= (dx / dist) * push
+            positions[i][1] -= (dy / dist) * push
+            positions[j][0] += (dx / dist) * push
+            positions[j][1] += (dy / dist) * push
+          } else {
+            // 동일 위치면 x로 밀어내기
+            positions[i][0] -= push
+            positions[j][0] += push
+          }
+          anyMoved = true
+        }
       }
     }
+    if (!anyMoved) break
   }
-  return positions
+
+  // 캔버스 경계 내로 제한
+  return positions.map(([x, y]) => [
+    Math.max(R, Math.min(w - R, x)),
+    Math.max(R, Math.min(h - R, y))
+  ])
 }
 
 // 점선 가이드를 획순 좌표 데이터로 그림 (폰트 대신) → 획순과 100% 일치
@@ -168,7 +191,29 @@ function fadeOutGuide(ctx, strokes, w, h, rafRef, mountedRef, duration = 1500) {
 
 function animateStrokes(ctx, strokes, w, h, rafRef, mountedRef, onComplete) {
   let strokeIdx = 0
-  const numPos = computeNumberPositions(strokes, w, h)
+  const completedPaths = []  // 완성된 획 경로 저장 (재드로우용)
+
+  // 기본 레이어: 점선 가이드 + 완성된 획들 다시 그리기
+  function drawBase() {
+    ctx.clearRect(0, 0, w, h)
+    drawGhostLetter(ctx, w, h, null, strokes)
+    if (completedPaths.length > 0) {
+      ctx.save()
+      ctx.strokeStyle = 'rgba(25, 118, 210, 0.55)'
+      ctx.lineWidth = 6
+      ctx.lineCap = 'round'
+      ctx.lineJoin = 'round'
+      completedPaths.forEach(pts => {
+        ctx.beginPath()
+        pts.forEach(([x, y], i) => {
+          if (i === 0) ctx.moveTo(x, y)
+          else ctx.lineTo(x, y)
+        })
+        ctx.stroke()
+      })
+      ctx.restore()
+    }
+  }
 
   function drawNumberCircle(x, y, num) {
     ctx.save()
@@ -195,47 +240,46 @@ function animateStrokes(ctx, strokes, w, h, rafRef, mountedRef, onComplete) {
       return
     }
 
-    const [nx, ny] = numPos[strokeIdx]
-    drawNumberCircle(nx, ny, strokeIdx + 1)
+    // 현재 획 번호만 표시 (이전 번호는 drawBase로 지워짐)
+    drawBase()
+    const [sx, sy] = coordToPx(strokes[strokeIdx][0][0], strokes[strokeIdx][0][1], w, h)
+    drawNumberCircle(sx, sy, strokeIdx + 1)
 
     setTimeout(() => {
       if (!mountedRef.current) return
-      animateSingleStroke(ctx, strokes[strokeIdx], w, h, rafRef, () => {
-        strokeIdx++
-        setTimeout(nextStroke, 250)
-      })
+      // 번호 지우고 획 애니메이션 시작
+      drawBase()
+      const pts = getSmoothPoints(strokes[strokeIdx], w, h, 18)
+      let ptIdx = 1
+
+      ctx.strokeStyle = 'rgba(25, 118, 210, 0.55)'
+      ctx.lineWidth = 6
+      ctx.lineCap = 'round'
+      ctx.lineJoin = 'round'
+      ctx.beginPath()
+      ctx.moveTo(pts[0][0], pts[0][1])
+
+      function frame() {
+        if (!mountedRef.current) return
+        if (ptIdx >= pts.length) {
+          ctx.stroke()
+          completedPaths.push(pts)
+          strokeIdx++
+          setTimeout(nextStroke, 250)
+          return
+        }
+        ctx.lineTo(pts[ptIdx][0], pts[ptIdx][1])
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.moveTo(pts[ptIdx][0], pts[ptIdx][1])
+        ptIdx++
+        rafRef.current = requestAnimationFrame(frame)
+      }
+      rafRef.current = requestAnimationFrame(frame)
     }, 350)
   }
 
   nextStroke()
-}
-
-function animateSingleStroke(ctx, stroke, w, h, rafRef, onDone) {
-  // 부드러운 곡선 점 미리 계산 (18 steps/seg = 기존 속도 유지)
-  const pts = getSmoothPoints(stroke, w, h, 18)
-  let ptIdx = 1
-
-  ctx.strokeStyle = 'rgba(25, 118, 210, 0.55)'
-  ctx.lineWidth = 6
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
-  ctx.beginPath()
-  ctx.moveTo(pts[0][0], pts[0][1])
-
-  function frame() {
-    if (ptIdx >= pts.length) {
-      ctx.stroke()
-      onDone()
-      return
-    }
-    ctx.lineTo(pts[ptIdx][0], pts[ptIdx][1])
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.moveTo(pts[ptIdx][0], pts[ptIdx][1])
-    ptIdx++
-    rafRef.current = requestAnimationFrame(frame)
-  }
-  rafRef.current = requestAnimationFrame(frame)
 }
 
 // ── WritingExercise ───────────────────────────────────────────────────────────
