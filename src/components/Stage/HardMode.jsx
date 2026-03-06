@@ -300,7 +300,9 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
       exit={{ opacity: 0, x: -50 }}
       className="w-full max-w-sm space-y-4"
     >
-      <SpeechBubble text={`${label}을 따라 써볼까?`} character={character} />
+      <div style={{ width: 280 }} className="mx-auto">
+        <SpeechBubble text={`${label}을 따라 써볼까?`} character={character} />
+      </div>
 
       <div
         className="bg-white rounded-2xl shadow-lg p-2 mx-auto"

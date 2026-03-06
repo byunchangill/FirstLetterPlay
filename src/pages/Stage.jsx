@@ -141,11 +141,11 @@ export default function StagePage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen flex flex-col"
+      className="h-[100dvh] flex flex-col overflow-hidden"
       style={{ background: `linear-gradient(to bottom, ${world.bgColor}, #f8fafc)` }}
     >
       {/* Header */}
-      <div className="relative flex items-center px-4 py-3">
+      <div className="relative flex items-center px-4 py-2 flex-shrink-0">
         <BackButton to={`/world/${area}`} />
         <span className="absolute left-1/2 -translate-x-1/2 font-jua text-2xl text-gray-700">
           {world.getLabel(item)} 배우기
@@ -159,7 +159,7 @@ export default function StagePage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 pb-6">
+      <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-4 pb-4">
         <AnimatePresence mode="wait">
           {phase === 'intro' && (
             <IntroView
@@ -244,14 +244,14 @@ function IntroView({ item, world, character, onStart }) {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -30 }}
-      className="w-full max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20 pt-4"
+      className="w-full max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-4 md:gap-12"
     >
       {/* Left (or Top on Mobile): Letter & Image */}
-      <div className="flex flex-col items-center gap-6">
+      <div className="flex flex-col items-center gap-3 md:gap-6">
         <motion.div
           animate={{ scale: [1, 1.05, 1], rotate: [0, -2, 2, 0] }}
           transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-          className="font-jua text-[8rem] md:text-[14rem] text-gray-800 leading-none drop-shadow-xl"
+          className="font-jua text-[5rem] md:text-[9rem] text-gray-800 leading-none drop-shadow-xl"
         >
           {label}
         </motion.div>
@@ -260,28 +260,29 @@ function IntroView({ item, world, character, onStart }) {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.3, type: 'spring' }}
+          className="flex justify-center"
         >
           {item.image
-            ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-48 h-48 md:w-72 md:h-72 object-contain drop-shadow-lg" />
-            : <span className="text-7xl md:text-8xl drop-shadow-md">📝</span>
+            ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-32 h-32 md:w-56 md:h-56 object-contain drop-shadow-lg" />
+            : <span className="text-5xl md:text-8xl drop-shadow-md">📝</span>
           }
         </motion.div>
       </div>
 
       {/* Right (or Bottom on Mobile): Interactions */}
-      <div className="flex flex-col items-center gap-8 w-full max-w-md bg-white/40 p-8 md:p-10 rounded-[2rem] shadow-xl backdrop-blur-sm border border-white/50">
+      <div className="flex flex-col items-center gap-4 md:gap-8 w-full max-w-md bg-white/40 p-5 md:p-10 rounded-[2rem] shadow-xl backdrop-blur-sm border border-white/50">
         <SpeechBubble text={`${label}${character.greetings.learn}`} character={character} />
 
-        <div className="bg-white/50 p-6 rounded-full shadow-inner">
+        <div className="bg-white/50 p-3 md:p-6 rounded-full shadow-inner">
           <AudioButton
             onClick={() => play(`${world.audioPath}${item.audio}`)}
             isPlaying={isPlaying}
-            size="lg"
+            size="md"
           />
         </div>
 
-        <div className="w-full flex justify-center mt-2">
-          <BigButton onClick={onStart} color={world.color}>
+        <div className="w-full flex justify-center">
+          <BigButton onClick={onStart} color={world.color} size="md">
             배우기 시작! 🚀
           </BigButton>
         </div>
