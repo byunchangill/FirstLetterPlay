@@ -90,15 +90,24 @@ function computeNumberPositions(strokes, w, h) {
   return positions
 }
 
-function drawGhostLetter(ctx, w, h, label) {
+// 점선 가이드를 획순 좌표 데이터로 그림 (폰트 대신) → 획순과 100% 일치
+function drawGhostLetter(ctx, w, h, label, strokes) {
+  if (!strokes || strokes.length === 0) return
   ctx.save()
-  ctx.font = `bold ${Math.min(w, h) * 0.82}px "Noto Sans KR", sans-serif`
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
   ctx.strokeStyle = 'rgba(160, 160, 160, 0.45)'
-  ctx.lineWidth = 2
+  ctx.lineWidth = 4
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
   ctx.setLineDash([8, 8])
-  ctx.strokeText(label, w / 2, h / 2)
+  strokes.forEach(stroke => {
+    const pts = getSmoothPoints(stroke, w, h, 50)
+    ctx.beginPath()
+    pts.forEach(([x, y], i) => {
+      if (i === 0) ctx.moveTo(x, y)
+      else ctx.lineTo(x, y)
+    })
+    ctx.stroke()
+  })
   ctx.restore()
 }
 
@@ -135,15 +144,15 @@ function drawFinalGuide(ctx, strokes, w, h) {
   ctx.restore()
 }
 
-// 획순 가이드 페이드아웃
-function fadeOutGuide(ctx, strokes, w, h, label, rafRef, mountedRef, duration = 1500) {
+// 획순 가이드 페이드아웃 → 점선 가이드만 남김
+function fadeOutGuide(ctx, strokes, w, h, rafRef, mountedRef, duration = 1500) {
   const startTime = performance.now()
   function frame(currentTime) {
     if (!mountedRef.current) return
     const elapsed = currentTime - startTime
     const alpha = Math.max(0, 1 - elapsed / duration)
     ctx.clearRect(0, 0, w, h)
-    drawGhostLetter(ctx, w, h, label)
+    drawGhostLetter(ctx, w, h, null, strokes)
     if (alpha > 0.01) {
       ctx.save()
       ctx.globalAlpha = alpha
@@ -260,14 +269,14 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
     const ctx = canvas.getContext('2d')
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    drawGhostLetter(ctx, canvas.width, canvas.height, label)
+    drawGhostLetter(ctx, canvas.width, canvas.height, label, strokes)
 
     if (!strokes) return
     setIsAnimating(true)
     animateStrokes(ctx, strokes, canvas.width, canvas.height, rafRef, mountedRef, () => {
       if (mountedRef.current) {
         setIsAnimating(false)
-        fadeOutGuide(ctx, strokes, canvas.width, canvas.height, label, rafRef, mountedRef)
+        fadeOutGuide(ctx, strokes, canvas.width, canvas.height, rafRef, mountedRef)
       }
     })
   }
@@ -393,8 +402,9 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
   const [selected, setSelected] = useState(null)
   const [answered, setAnswered] = useState(false)
 
-  const wordDisplay = item.word || item.korean || ''
-  const blankWord = wordDisplay ? `[ ] ${wordDisplay.slice(1)}` : `[ ] = ${label}`
+  const wordDisplay = item.word || (world.id === 'numbers_en' ? item.english : item.korean) || ''
+  const isEnglish = world.id === 'numbers_en' || (item.upper !== undefined)
+  const blankWord = wordDisplay ? (isEnglish ? `[  ]${wordDisplay.slice(1)}` : `[ ] ${wordDisplay.slice(1)}`) : `[ ] = ${label}`
 
   const choices = useMemo(() => {
     const others = world.items

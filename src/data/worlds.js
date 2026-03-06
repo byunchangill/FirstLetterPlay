@@ -45,9 +45,11 @@ export const worlds = [
     audioPath: '/audio/numbers/',
     imagePath: '/images/matching/numbers/',
     bgImage: '/images/worlds/number-bg.png',
-    getLabel: (item) => String(item.number),
-    getDisplayName: (item) => `${item.number} (${item.korean} / ${item.english})`,
-    getHint: (item) => `${item.number}은 한글로 ${item.korean}, 영어로 ${item.english}!`,
+    hasTabs: true,
+    tabs: [
+      { id: 'kr', name: '한글', color: '#FF9800' },
+      { id: 'en', name: '영어', color: '#4CAF50' }
+    ]
   },
   {
     id: 'alphabet',
@@ -85,6 +87,28 @@ export function getWorldById(id) {
       getLabel: (item) => tab === 'lower' ? item.lower : item.upper,
       getDisplayName: (item) => `${tab === 'lower' ? item.lower : item.upper} - ${item.word}`,
       getHint: (item) => `${tab === 'lower' ? item.lower : item.upper} is for ${item.word}!`,
+    }
+    pseudoWorldsCache[id] = pseudo
+    return pseudo
+  }
+  if (id && id.startsWith('numbers_')) {
+    if (pseudoWorldsCache[id]) return pseudoWorldsCache[id]
+
+    const base = worlds.find(w => w.id === 'numbers')
+    const tab = id.split('_')[1]
+    const pseudo = {
+      ...base,
+      id,
+      parentId: base.id,
+      name: tab === 'kr' ? '숫자 나라' : '숫자 나라',
+      color: tab === 'kr' ? '#FF9800' : '#4CAF50',
+      getLabel: (item) => tab === 'kr' ? String(item.number) : item.english,
+      getDisplayName: (item) => `${item.number} - ${tab === 'kr' ? item.korean : item.english}`,
+      getHint: (item) => `${item.number}은 ${tab === 'kr' ? "한글로 " + item.korean + " 또는 " + item.korean2 : "영어로 " + item.english}!`,
+      items: base.items.map(item => ({
+        ...item,
+        audio: tab === 'kr' ? item.audioKr : item.audioEn
+      }))
     }
     pseudoWorldsCache[id] = pseudo
     return pseudo

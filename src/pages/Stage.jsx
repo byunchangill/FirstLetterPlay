@@ -62,7 +62,7 @@ export default function StagePage() {
 
   function handleIntroComplete() {
     const stageStars = getStageStars(area, stageIndex)
-    wasAlreadyMaxedRef.current = stageStars.total >= 9
+    wasAlreadyMaxedRef.current = stageStars.allCleared
     setPhase('easy')
     setDifficultyIndex(0)
     setCurrentQ(0)

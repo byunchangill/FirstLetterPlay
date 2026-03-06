@@ -380,8 +380,57 @@ const strokeOrder = {
   ],
 }
 
+function getCharWidth(c) {
+  if (/[mwMW]/.test(c)) return 1.4
+  if (/[ijl1I]/.test(c)) return 0.5
+  if (/[rtf]/.test(c)) return 0.7
+  return 1.0
+}
+
+function composeWordStrokes(word) {
+  const letters = word.split('')
+  const strokes = []
+
+  let fontSize = Math.min(0.82, 1.5 / letters.length)
+  const scale = fontSize / 0.82
+
+  const baseAdvance = 0.53 * fontSize
+  const widths = letters.map(c => getCharWidth(c) * baseAdvance)
+  const total_width = widths.reduce((a, b) => a + b, 0)
+
+  let currentX = 0.5 - total_width / 2
+
+  for (let i = 0; i < letters.length; i++) {
+    const char = letters[i]
+    let charStrokes = strokeOrder[char]
+    if (!charStrokes) charStrokes = strokeOrder[char.toUpperCase()]
+
+    const advance = widths[i]
+    const CX = currentX + advance / 2
+
+    if (charStrokes) {
+      const scaledCharStrokes = charStrokes.map(stroke =>
+        stroke.map(([x, y]) => {
+          const relX = x - 0.5
+          const relY = y - 0.5
+          return [
+            CX + relX * scale,
+            0.5 + relY * scale
+          ]
+        })
+      )
+      strokes.push(...scaledCharStrokes)
+    }
+
+    currentX += advance
+  }
+
+  return strokes.length > 0 ? strokes : null
+}
+
 export function getStrokeOrder(label) {
   if (!label) return null
   if (strokeOrder[label]) return strokeOrder[label]
+  if (label.length > 1) return composeWordStrokes(label)
   return null
 }

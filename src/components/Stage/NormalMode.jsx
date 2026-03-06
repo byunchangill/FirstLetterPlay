@@ -41,7 +41,7 @@ export default function NormalMode({ item, world, character, questionIndex, onAn
     const isCorrect = world.getLabel(selected) === label
     setTimeout(() => {
       onAnswer(isCorrect)
-    }, 1200)
+    }, 400)
   }
 
   return (
@@ -70,7 +70,7 @@ export default function NormalMode({ item, world, character, questionIndex, onAn
             if (answered && isCorrect) bgColor = 'bg-green-100'
             else if (answered && isSelected && !isCorrect) bgColor = 'bg-red-100'
 
-            const wordDisplay = choice.word || choice.korean || choice.name || ''
+            const wordDisplay = choice.word || (world.id === 'numbers_en' ? choice.english : choice.korean) || choice.name || ''
 
             return (
               <motion.button
