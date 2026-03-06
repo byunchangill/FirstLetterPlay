@@ -42,7 +42,7 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
     const isCorrect = choice === correctLabel
     setTimeout(() => {
       onAnswer(isCorrect)
-    }, 400)
+    }, 200)
   }
 
   const hint = world.getHint(item)

@@ -41,7 +41,7 @@ export default function NormalMode({ item, world, character, questionIndex, onAn
     const isCorrect = world.getLabel(selected) === label
     setTimeout(() => {
       onAnswer(isCorrect)
-    }, 400)
+    }, 200)
   }
 
   return (

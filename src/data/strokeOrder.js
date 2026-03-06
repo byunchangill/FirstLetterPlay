@@ -383,7 +383,7 @@ const strokeOrder = {
 function getCharWidth(c) {
   if (/[mwMW]/.test(c)) return 1.4
   if (/[ijl1I]/.test(c)) return 0.5
-  if (/[rtf]/.test(c)) return 0.7
+  if (/[rtf]/.test(c)) return 0.75
   return 1.0
 }
 
@@ -391,11 +391,17 @@ function composeWordStrokes(word) {
   const letters = word.split('')
   const strokes = []
 
-  let fontSize = Math.min(0.82, 1.5 / letters.length)
-  const scale = fontSize / 0.82
+  const widthFactors = letters.map(c => getCharWidth(c))
+  const totalWidthFactor = widthFactors.reduce((a, b) => a + b, 0)
+  const n = letters.length
 
-  const baseAdvance = 0.53 * fontSize
-  const widths = letters.map(c => getCharWidth(c) * baseAdvance)
+  // 글자 수에 따라 최소 scale 결정 (가독성 보장)
+  const minScale = n <= 2 ? 0.55 : n <= 3 ? 0.42 : n <= 4 ? 0.35 : 0.28
+  const scale = Math.min(0.82, Math.max(minScale, 0.82 / totalWidthFactor))
+
+  // advance: 캔버스의 92%를 활용하되, 최대 0.85 제한
+  const advanceFactor = Math.min(0.85, 0.92 / (scale * totalWidthFactor))
+  const widths = widthFactors.map(f => f * scale * advanceFactor)
   const total_width = widths.reduce((a, b) => a + b, 0)
 
   let currentX = 0.5 - total_width / 2

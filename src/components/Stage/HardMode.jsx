@@ -421,7 +421,7 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
     setAnswered(true)
     setTimeout(() => {
       onAnswer(choice === label)
-    }, 1200)
+    }, 200)
   }
 
   return (
