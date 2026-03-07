@@ -1,26 +1,52 @@
 // =====================================================
 // audioCache.js - Web Audio API 기반 오디오 캐시
-// 모바일: unlock 전 → raw ArrayBuffer 보관, unlock 후 → 일괄 디코딩
-// PC: AudioContext가 바로 running이므로 즉시 디코딩
+//
+// 핵심 원칙:
+// 1. AudioContext는 유저 제스처 안에서만 생성 (PWA 호환)
+// 2. 제스처 전 fetch → raw ArrayBuffer 보관
+// 3. 제스처 후 → 디코딩, 디코딩 Promise 추적 (레이스 컨디션 방지)
 // =====================================================
 
-// --- 캐시 저장소 ---
-const bufferCache = new Map()  // src → AudioBuffer (디코딩 완료, 즉시 재생 가능)
-const rawCache = new Map()     // src → ArrayBuffer (unlock 전 임시 보관)
-const pendingMap = new Map()   // src → Promise (진행 중인 fetch)
+const bufferCache = new Map()  // src → AudioBuffer (디코딩 완료)
+const rawCache = new Map()     // src → ArrayBuffer (디코딩 대기)
+const decodeMap = new Map()    // src → Promise (디코딩 진행 중 추적)
+const pendingMap = new Map()   // src → Promise (fetch 진행 중)
 
-// --- AudioContext ---
 let audioCtx = null
 let unlocked = false
 let currentSource = null
 
-function getContext() {
+// AudioContext는 유저 제스처 안에서만 생성
+function ensureContext() {
   if (!audioCtx) {
     try {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)()
     } catch (e) {}
   }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume()
+  }
   return audioCtx
+}
+
+// --- 디코딩 (Promise 추적) ---
+function decodeAndCache(src, arrayBuf) {
+  const ctx = ensureContext()
+  if (!ctx) return Promise.resolve(null)
+
+  const p = ctx.decodeAudioData(arrayBuf)
+    .then(audioBuffer => {
+      bufferCache.set(src, audioBuffer)
+      decodeMap.delete(src)
+      return audioBuffer
+    })
+    .catch(() => {
+      decodeMap.delete(src)
+      return null
+    })
+
+  decodeMap.set(src, p)
+  return p
 }
 
 // --- 동시 fetch 큐 ---
@@ -47,14 +73,11 @@ function doFetch(src) {
       return res.arrayBuffer()
     })
     .then(arrayBuf => {
-      const ctx = getContext()
-      if (unlocked && ctx) {
-        // unlock 완료 상태 → 즉시 디코딩
-        return ctx.decodeAudioData(arrayBuf).then(audioBuffer => {
-          bufferCache.set(src, audioBuffer)
-        })
+      if (unlocked) {
+        // 이미 unlock → 즉시 디코딩
+        return decodeAndCache(src, arrayBuf)
       } else {
-        // unlock 전 → raw 데이터 보관 (나중에 디코딩)
+        // unlock 전 → raw 보관
         rawCache.set(src, arrayBuf)
       }
     })
@@ -64,29 +87,21 @@ function doFetch(src) {
     })
 }
 
-// --- 모바일 오디오 잠금 해제 ---
+// --- 오디오 잠금 해제 ---
 export function unlockAudio() {
   if (unlocked) return
   unlocked = true
 
-  const ctx = getContext()
-  if (!ctx) return
+  ensureContext()
 
-  // AudioContext 활성화
-  if (ctx.state === 'suspended') {
-    ctx.resume()
-  }
-
-  // 보관해둔 raw ArrayBuffer들을 일괄 디코딩
+  // rawCache의 모든 항목을 디코딩 (Promise 추적됨)
   for (const [src, arrayBuf] of rawCache) {
-    ctx.decodeAudioData(arrayBuf).then(audioBuffer => {
-      bufferCache.set(src, audioBuffer)
-    }).catch(() => {})
+    decodeAndCache(src, arrayBuf)
   }
   rawCache.clear()
 }
 
-// 앱 시작 시 첫 터치/클릭에 잠금 해제
+// 첫 터치/클릭에 잠금 해제
 if (typeof document !== 'undefined') {
   const handler = () => {
     unlockAudio()
@@ -97,11 +112,11 @@ if (typeof document !== 'undefined') {
   document.addEventListener('click', handler, { capture: true, passive: true })
 }
 
-// --- 프리로드 함수들 ---
+// --- 프리로드 ---
 
 export function preloadAudio(src, priority = false) {
   if (!src) return Promise.resolve()
-  if (bufferCache.has(src) || rawCache.has(src)) return Promise.resolve()
+  if (bufferCache.has(src) || rawCache.has(src) || decodeMap.has(src)) return Promise.resolve()
   if (pendingMap.has(src)) return pendingMap.get(src)
 
   const promise = new Promise((resolve) => {
@@ -126,7 +141,7 @@ export function preloadAudioList(srcs) {
   srcs.filter(Boolean).forEach(src => preloadAudio(src, false))
 }
 
-// --- 현재 재생 중지 ---
+// --- 재생 중지 ---
 export function stopCurrentAudio() {
   if (currentSource) {
     try { currentSource.stop() } catch (e) {}
@@ -134,37 +149,39 @@ export function stopCurrentAudio() {
   }
 }
 
-// --- 재생 함수 ---
+// --- 재생 ---
 
 export function playAudio(src, onStart, onEnd, onError) {
   if (!src) return Promise.resolve()
 
-  // 재생 시점에 context가 suspended면 resume (버튼 클릭 = 유저 제스처)
-  const ctx = getContext()
-  if (ctx && ctx.state === 'suspended') {
-    ctx.resume()
+  // playAudio는 항상 유저 제스처에서 호출됨 → 여기서도 unlock 보장
+  if (!unlocked) unlockAudio()
+  ensureContext()
+
+  // 1) 디코딩 완료 → 즉시 재생
+  if (bufferCache.has(src)) {
+    return playBuffer(bufferCache.get(src), onStart, onEnd, onError)
   }
 
-  // rawCache에 있지만 아직 디코딩 안 된 경우 → 즉석 디코딩
-  if (!bufferCache.has(src) && rawCache.has(src) && ctx) {
+  // 2) 디코딩 진행 중 → 완료 기다린 후 재생
+  if (decodeMap.has(src)) {
+    return decodeMap.get(src).then(buf => {
+      if (buf) return playBuffer(buf, onStart, onEnd, onError)
+      if (onError) onError()
+    })
+  }
+
+  // 3) rawCache에 있음 (unlock 직후 아직 처리 안 된 경우) → 즉석 디코딩
+  if (rawCache.has(src)) {
     const raw = rawCache.get(src)
     rawCache.delete(src)
-    return ctx.decodeAudioData(raw)
-      .then(audioBuffer => {
-        bufferCache.set(src, audioBuffer)
-        return playBuffer(audioBuffer, onStart, onEnd, onError)
-      })
-      .catch(() => {
-        if (onError) onError()
-      })
+    return decodeAndCache(src, raw).then(buf => {
+      if (buf) return playBuffer(buf, onStart, onEnd, onError)
+      if (onError) onError()
+    })
   }
 
-  const buffer = bufferCache.get(src)
-  if (buffer) {
-    return playBuffer(buffer, onStart, onEnd, onError)
-  }
-
-  // 아직 fetch도 안 됐으면 기다린 후 재생
+  // 4) fetch도 안 됨 → fetch 후 재생
   return (async () => {
     if (pendingMap.has(src)) {
       const idx = queue.findIndex(j => j.src === src)
@@ -177,14 +194,16 @@ export function playAudio(src, onStart, onEnd, onError) {
       await preloadAudio(src, true)
     }
 
-    // fetch 완료 후 rawCache에 있으면 디코딩
-    if (!bufferCache.has(src) && rawCache.has(src) && ctx) {
+    // fetch 완료 후 디코딩 진행 중일 수 있음
+    if (decodeMap.has(src)) {
+      await decodeMap.get(src)
+    }
+
+    // rawCache에 남아있을 수 있음
+    if (!bufferCache.has(src) && rawCache.has(src)) {
       const raw = rawCache.get(src)
       rawCache.delete(src)
-      try {
-        const audioBuffer = await ctx.decodeAudioData(raw)
-        bufferCache.set(src, audioBuffer)
-      } catch (e) {}
+      await decodeAndCache(src, raw)
     }
 
     const buf = bufferCache.get(src)
@@ -195,14 +214,13 @@ export function playAudio(src, onStart, onEnd, onError) {
 
 function playBuffer(buffer, onStart, onEnd, onError) {
   return new Promise((resolve) => {
-    const ctx = getContext()
+    const ctx = ensureContext()
     if (!ctx) {
       if (onError) onError()
       resolve()
       return
     }
 
-    // 이전 재생 중지
     stopCurrentAudio()
 
     const source = ctx.createBufferSource()
