@@ -1,0 +1,24 @@
+# GitHub Dependabot 설정 파일
+# 이 파일이 있으면 GitHub가 자동으로 의존성 보안 업데이트를 PR로 올려줍니다.
+
+version: 2
+
+updates:
+  # npm 패키지 의존성 자동 업데이트
+  - package-ecosystem: "npm"
+    # 프로젝트 루트에서 package.json을 찾습니다.
+    directory: "/"
+    schedule:
+      # 매주 월요일 오전 9시(KST 기준)에 확인합니다.
+      interval: "weekly"
+      day: "monday"
+      time: "00:00"
+      timezone: "Asia/Seoul"
+    # 한 번에 열리는 PR 수를 제한해 알림 과부하를 막습니다.
+    open-pull-requests-limit: 5
+    # PR 제목 앞에 붙을 접두어 (알아보기 쉽게)
+    commit-message:
+      prefix: "chore(deps)"
+    # 보안 업데이트만 자동으로 PR 생성 (일반 업데이트는 수동)
+    # 주석 처리된 아래 옵션을 활성화하면 모든 업데이트를 PR로 받습니다.
+    # open-pull-requests-limit: 10

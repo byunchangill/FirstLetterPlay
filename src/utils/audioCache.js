@@ -60,7 +60,10 @@ export function unlockAudio() {
     source.connect(ctx.destination)
     source.start(0)
     ctx.resume()
-  } catch (e) {}
+  } catch {
+    // 브라우저가 AudioContext를 지원하지 않는 경우 조용히 무시합니다.
+    // 오디오 잠금 해제 실패는 치명적인 오류가 아니므로 넘어갑니다.
+  }
 
   // 2) HTML Audio 잠금 해제 (무음 WAV 데이터)
   try {
@@ -69,7 +72,10 @@ export function unlockAudio() {
     )
     silence.volume = 0
     silence.play().catch(() => {})
-  } catch (e) {}
+  } catch {
+    // HTML Audio 잠금 해제 실패도 조용히 무시합니다.
+    // 모바일 브라우저 정책으로 인해 실패할 수 있으나 앱 동작에는 영향 없습니다.
+  }
 }
 
 // 앱 시작 시 자동으로 첫 터치/클릭에 잠금 해제 등록
