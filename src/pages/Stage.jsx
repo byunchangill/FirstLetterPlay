@@ -200,7 +200,7 @@ export default function StagePage() {
       </div>
 
       {/* 메인 콘텐츠 영역 (화면 단계에 따라 다른 화면을 보여줘요) */}
-      <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-4 pb-4">
+      <div className={`flex-1 min-h-0 flex flex-col items-center px-4 pb-4 ${['easy', 'normal', 'hard'].includes(phase) ? 'justify-start' : 'justify-center'}`}>
         <AnimatePresence mode="wait">
           {/* 인트로 화면: 글자 소개 + 소리 듣기 + 배우기 시작 버튼 */}
           {phase === 'intro' && (

@@ -68,30 +68,32 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -50 }}
-      className="w-full max-w-sm space-y-3 md:space-y-6"
+      className="w-full max-w-sm h-full flex flex-col py-2"
     >
-      {/* 그림 + 글자 이름 표시 */}
-      <div className="text-center">
-        {item.image
-          ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-20 h-20 md:w-32 md:h-32 object-contain mx-auto mb-1 md:mb-2" />
-          : <div className="text-5xl md:text-6xl mb-1 md:mb-2">📝</div>
-        }
-      </div>
+      {/* 위쪽: 그림 + 말풍선 + 소리 버튼 (남은 공간을 꽉 채워요) */}
+      <div className="flex-1 flex flex-col items-center justify-center gap-3">
 
-      {/* 캐릭터가 힌트를 알려줘요 (예: "기역") */}
-      <SpeechBubble text={hint} character={character} />
+        {/* 기린 이미지 (크게!) */}
+        <div className="text-center">
+          {item.image
+            ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-40 h-40 md:w-52 md:h-52 object-contain mx-auto drop-shadow-md" />
+            : <div className="text-8xl md:text-9xl">📝</div>
+          }
+        </div>
 
-      {/* 소리 다시 듣는 버튼 */}
-      <div className="flex justify-center">
+        {/* 캐릭터가 힌트를 알려줘요 (예: "기역") */}
+        <SpeechBubble text={hint} character={character} />
+
+        {/* 소리 다시 듣는 버튼 */}
         <AudioButton
           onClick={() => play(`${world.audioPath}${item.audio}`)}
           isPlaying={isPlaying}
-          size="sm"
+          size="lg"
         />
       </div>
 
-      {/* 4개의 선택지 */}
-      <div>
+      {/* 아래쪽: 4개의 선택지 (화면 하단에 붙어요) */}
+      <div className="flex-shrink-0 pb-2">
         <p className="font-gaegu text-center text-lg md:text-2xl font-bold text-gray-700 mb-2 leading-tight">
           맞는 글자를 눌러봐!
         </p>
@@ -119,7 +121,7 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
                       : {}
                 }
                 onClick={() => handleSelect(choice)}
-                className={`${bg} border-3 ${border} rounded-2xl p-3 md:p-4 font-jua text-3xl md:text-4xl text-gray-800 shadow-md cursor-pointer min-h-[60px] md:min-h-[80px] flex items-center justify-center`}
+                className={`${bg} border-3 ${border} rounded-2xl p-3 md:p-4 font-jua text-3xl md:text-4xl text-gray-800 shadow-md cursor-pointer min-h-[70px] md:min-h-[80px] flex items-center justify-center`}
                 style={{ borderWidth: '3px' }}
               >
                 {choice}
