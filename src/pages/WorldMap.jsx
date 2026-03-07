@@ -12,6 +12,7 @@ import { worlds, getWorldById } from '../data/worlds'
 import { useCharacter } from '../context/CharacterContext'
 import { useProgress } from '../hooks/useProgress'
 import { getCharacterById, getCharacterLevel } from '../data/characters'
+import { preloadAudioList } from '../utils/audioCache'
 import BackButton from '../components/common/BackButton'
 import ProgressBar from '../components/common/ProgressBar'
 import StarDisplay from '../components/common/StarDisplay'
@@ -198,6 +199,19 @@ function StageListView({ world, initialTab, character, growth, getStageStars, is
   const isTabbed = world.hasTabs  // 탭이 있는 월드인지 여부
   const currentWorldId = activeTab ? `${world.id}_${activeTab}` : world.id
   const currentWorld = activeTab ? getWorldById(currentWorldId) : world  // 현재 보여줄 월드 정보
+
+  // 스테이지 목록이 보이는 동안 이 월드의 모든 오디오를 미리 받아놔요
+  // → 스테이지 진입 시 이미 로딩 완료 상태!
+  useEffect(() => {
+    if (!currentWorld || !currentWorld.items || !character) return
+    const charId = character.id
+    const paths = []
+    currentWorld.items.forEach(wItem => {
+      if (currentWorld.getSpelAudioUrl) paths.push(currentWorld.getSpelAudioUrl(wItem, charId))
+      if (currentWorld.getWordAudioUrl) paths.push(currentWorld.getWordAudioUrl(wItem, charId))
+    })
+    preloadAudioList(paths.filter(Boolean))
+  }, [currentWorld, character])
 
   return (
     <motion.div

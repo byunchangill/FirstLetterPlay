@@ -84,23 +84,21 @@ export default function RewardModal({ rewardData, character, onNext, onMap, hasN
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 1.2 }}
-        className="flex justify-center items-stretch gap-3 w-full"
+        className="flex flex-col items-center gap-2 w-full"
       >
-        {/* 다음 스테이지가 있으면 "다음 스테이지" 버튼을 보여줘요 */}
+        {/* 다음 스테이지가 있으면 초록 Primary 버튼 */}
         {hasNextStage && (
-          <div className="flex-1 flex">
-            <BigButton onClick={onNext} color="#4CAF50" size="md" className="w-full flex-1 flex flex-col items-center justify-center break-keep leading-tight px-1 py-4">
-              <span>다음 스테이지</span>
-              <span className="text-xl mt-1">▶</span>
-            </BigButton>
-          </div>
-        )}
-        {/* "월드맵으로" 버튼: 항상 보여요 */}
-        <div className="flex-1 flex">
-          <BigButton onClick={onMap} color="#2196F3" size="md" className="w-full flex-1 flex flex-col items-center justify-center break-keep leading-tight px-1 py-4">
-            월드맵으로
+          <BigButton onClick={onNext} color="#4CAF50" size="md" className="w-full flex items-center justify-center gap-2 break-keep">
+            다음 단계 ▶
           </BigButton>
-        </div>
+        )}
+        {/* "월드맵으로" 텍스트 버튼: 배경 없이 조용하게 */}
+        <button
+          onClick={onMap}
+          className="font-jua text-lg md:text-xl text-gray-400 py-2 px-4 hover:text-gray-600 active:scale-95 transition-all"
+        >
+          월드맵으로
+        </button>
       </motion.div>
     </motion.div>
   )

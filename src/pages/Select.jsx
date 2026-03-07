@@ -4,13 +4,14 @@
 // 캐릭터를 고르면 "안녕!" 하고 인사도 해줘요.
 // =====================================================
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { characters } from '../data/characters'
 import { useCharacter } from '../context/CharacterContext'
 import BigButton from '../components/common/BigButton'
 import SpeechBubble from '../components/common/SpeechBubble'
+import { preloadAudioList, playAudio } from '../utils/audioCache'
 
 export default function SelectPage() {
   // navigate: 다른 화면으로 이동하는 함수예요
@@ -23,11 +24,16 @@ export default function SelectPage() {
   // selectedChar: 선택된 캐릭터의 정보를 찾아줘요
   const selectedChar = characters.find(c => c.id === selected)
 
-  // 캐릭터 선택 시 hello 음성을 재생해요
+  // 화면이 열리면 모든 캐릭터의 hello 음성을 미리 로딩해요
+  useEffect(() => {
+    const helloPaths = characters.map(c => `/audio/characters/${c.id}/hello.mp3`)
+    preloadAudioList(helloPaths)
+  }, [])
+
+  // 캐릭터 선택 시 캐시에서 즉시 재생해요
   function handleSelectCharacter(id) {
     setSelected(id)
-    const audio = new Audio(`/audio/characters/${id}/hello.mp3`)
-    audio.play().catch(() => {})
+    playAudio(`/audio/characters/${id}/hello.mp3`).catch(() => {})
   }
 
   // 시작 버튼을 눌렀을 때 실행돼요

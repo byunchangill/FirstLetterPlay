@@ -11,6 +11,8 @@ import App from './App'
 // CharacterProvider: 선택한 캐릭터 정보를 앱 어디서든 쓸 수 있게 해줘요
 import { CharacterProvider } from './context/CharacterContext'
 import './index.css'
+// 오디오 캐시 모듈을 미리 로딩해요 (첫 터치 시 오디오 잠금 해제를 위해)
+import './utils/audioCache'
 
 // 🏁 앱을 HTML 페이지의 'root' 칸에 그려 넣어요
 ReactDOM.createRoot(document.getElementById('root')).render(

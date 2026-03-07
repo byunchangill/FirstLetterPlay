@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { getWorldById } from '../data/worlds'
 import { getCharacterById } from '../data/characters'
 import { useCharacter } from '../context/CharacterContext'
+import { preloadWithPriority } from '../utils/audioCache'
 import { useProgress } from '../hooks/useProgress'
 import { useAudio } from '../hooks/useAudio'
 import BackButton from '../components/common/BackButton'
@@ -74,17 +75,39 @@ export default function StagePage() {
     loadProgress(area)
   }, [profile, world, area, navigate, loadProgress])
 
-  // 모바일에서 이미지가 늦게 로딩되는 것을 방지하기 위해 월드의 모든 이미지를 미리 불러와요 (Preload)
+  // 이미지와 오디오를 미리 불러와요 (Preload) → 클릭 즉시 출력되도록!
   useEffect(() => {
-    if (world && world.items) {
-      world.items.forEach(wItem => {
-        if (wItem.image) {
-          const img = new Image()
-          img.src = `${world.imagePath}${wItem.image}`
-        }
-      })
+    if (!world || !world.items || !character) return
+
+    const charId = character.id
+    const currentItem = world.items[stageIndex]
+
+    // 1) 이미지 프리로드
+    world.items.forEach(wItem => {
+      if (wItem.image) {
+        const img = new Image()
+        img.src = `${world.imagePath}${wItem.image}`
+      }
+    })
+
+    // 2) 오디오 우선순위 프리로드
+    // 현재 스테이지 아이템의 오디오를 가장 먼저 로딩!
+    const priorityPaths = []
+    if (currentItem) {
+      if (world.getSpelAudioUrl) priorityPaths.push(world.getSpelAudioUrl(currentItem, charId))
+      if (world.getWordAudioUrl) priorityPaths.push(world.getWordAudioUrl(currentItem, charId))
     }
-  }, [world])
+
+    // 나머지 아이템의 오디오는 뒤이어 로딩
+    const restPaths = []
+    world.items.forEach((wItem, i) => {
+      if (i === stageIndex) return  // 현재 아이템은 이미 위에서 처리
+      if (world.getSpelAudioUrl) restPaths.push(world.getSpelAudioUrl(wItem, charId))
+      if (world.getWordAudioUrl) restPaths.push(world.getWordAudioUrl(wItem, charId))
+    })
+
+    preloadWithPriority(priorityPaths, restPaths)
+  }, [world, character, stageIndex])
 
   // 이 스테이지의 글자(항목) 정보를 가져와요
   const item = world?.items?.[stageIndex]
