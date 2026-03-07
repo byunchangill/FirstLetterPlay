@@ -1,36 +1,39 @@
 // =====================================================
-// useAudio.js - 소리를 재생하는 훅
-// audioCache의 playAudio를 사용해서 재생
+// 🎵 useAudio.js - 소리를 재생하는 훅이에요!
+// audioCache의 playAudio를 사용해서 즉시 재생해요.
+// fetch 진행 중이면 완료를 기다린 후 재생해요.
 // =====================================================
 
 import { useRef, useState, useCallback } from 'react'
-import { playAudio, getCachedAudio, stopCurrentAudio } from '../utils/audioCache'
+import { playAudio, getCachedAudio } from '../utils/audioCache'
 
 export function useAudio() {
-  const currentAudioRef = useRef(null)
+  const currentAudioRef = useRef(null)  // 현재 재생 중인 오디오
   const [isPlaying, setIsPlaying] = useState(false)
 
   const play = useCallback((src) => {
-    // 기존 재생 중인 소리 중지
+    // 기존 재생 중인 소리가 있으면 중지
     if (currentAudioRef.current) {
       currentAudioRef.current.pause()
       currentAudioRef.current.currentTime = 0
       setIsPlaying(false)
     }
-    stopCurrentAudio()
 
     return playAudio(
       src,
       () => {
+        // onStart
         setIsPlaying(true)
         const a = getCachedAudio(src)
         if (a) currentAudioRef.current = a
       },
       () => {
+        // onEnd
         setIsPlaying(false)
         currentAudioRef.current = null
       },
       () => {
+        // onError
         setIsPlaying(false)
         currentAudioRef.current = null
       },
@@ -44,7 +47,6 @@ export function useAudio() {
       setIsPlaying(false)
       currentAudioRef.current = null
     }
-    stopCurrentAudio()
   }, [])
 
   return { play, stop, isPlaying }
