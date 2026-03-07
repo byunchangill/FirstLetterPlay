@@ -16,7 +16,7 @@ export const worlds = [
     icon: '🏔️',
     color: '#4CAF50',
     bgColor: '#C8E6C9',
-    description: '한글 자음을 배워요!',
+    description: '자음을 찾아 떠나요!',
     items: consonants,  // 자음 리스트
     audioPath: '/audio/consonants/',  // (레거시) 소리 파일 위치
     imagePath: '/images/matching/consonants/',  // 그림 파일 위치
@@ -34,7 +34,7 @@ export const worlds = [
     icon: '🌊',
     color: '#2196F3',
     bgColor: '#B3E5FC',
-    description: '한글 모음을 배워요!',
+    description: '모음을 찾아 떠나요!',
     items: vowels,
     audioPath: '/audio/vowels/',
     imagePath: '/images/matching/vowels/',
@@ -52,7 +52,7 @@ export const worlds = [
     icon: '🌟',
     color: '#FF9800',
     bgColor: '#FFF9C4',
-    description: '숫자를 배워요!',
+    description: '숫자를 찾아 떠나요!',
     items: numbers,
     audioPath: '/audio/numbers/',
     imagePath: '/images/matching/numbers/',
@@ -72,7 +72,7 @@ export const worlds = [
     icon: '🚀',
     color: '#FF5722',
     bgColor: '#FFE0B2',
-    description: '영어 알파벳을 배워요!',
+    description: '알파벳을 찾아 떠나요!',
     items: alphabet,
     audioPath: '/audio/alphabet/',
     imagePath: '/images/matching/alphabet/',

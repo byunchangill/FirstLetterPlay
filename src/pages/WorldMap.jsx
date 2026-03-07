@@ -102,7 +102,7 @@ export default function WorldMapPage() {
         >
           {/* 현재 레벨에 맞는 캐릭터 이미지 */}
           <img src={getCharacterLevel(character, growth?.level).image} alt={character.name} className="w-10 h-10 object-contain drop-shadow-sm" />
-          <span className="font-bold text-lg">Lv.{growth?.level || 1}</span>
+          <span className="font-jua text-lg">Lv.{growth?.level || 1}</span>
         </button>
       </div>
 
@@ -167,7 +167,7 @@ export default function WorldMapPage() {
               <div className="relative z-10 space-y-2">
                 <div className="flex justify-between text-sm text-gray-700 bg-white/60 px-2 py-0.5 rounded backdrop-blur-sm font-bold">
                   <span className="flex items-center gap-1"><img src="/images/ui/star-filled.png" className="w-4 h-4" /> {stats.totalStars}/{stats.maxStars}</span>
-                  <span>{stats.clearedStages}/{stats.totalStages} 클리어</span>
+                  <span>{stats.clearedStages}/{stats.totalStages} 완료</span>
                 </div>
                 <div className="relative z-10">
                   {/* 얼마나 진행했는지 보여주는 막대예요 */}
