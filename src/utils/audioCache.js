@@ -34,11 +34,13 @@ function doFetch(src) {
     .then(blob => {
       const blobUrl = URL.createObjectURL(blob)
       blobCache.set(src, blobUrl)
-      // Audio 엘리먼트를 미리 생성하고 load()로 디코딩해둬요
-      // → 모바일에서도 클릭 즉시 재생 가능!
-      const audio = new Audio(blobUrl)
-      audio.load()
-      audioPool.set(src, audio)
+      // 유저 제스처 이후에만 Audio 엘리먼트를 미리 생성+디코딩
+      // 제스처 전에 생성하면 모바일에서 영구 차단됨
+      if (unlocked) {
+        const audio = new Audio(blobUrl)
+        audio.load()
+        audioPool.set(src, audio)
+      }
     })
     .catch(() => {})
     .finally(() => {
@@ -74,6 +76,15 @@ export function unlockAudio() {
     silence.volume = 0
     silence.play().catch(() => {})
   } catch (e) {}
+
+  // 3) 이미 캐시된 Blob URL들로 Audio 엘리먼트를 미리 생성+디코딩
+  for (const [src, blobUrl] of blobCache) {
+    if (!audioPool.has(src)) {
+      const audio = new Audio(blobUrl)
+      audio.load()
+      audioPool.set(src, audio)
+    }
+  }
 }
 
 // 앱 시작 시 자동으로 첫 터치/클릭에 잠금 해제 등록
