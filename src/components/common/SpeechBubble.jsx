@@ -1,7 +1,7 @@
 // =====================================================
 // 💬 SpeechBubble.jsx - 캐릭터의 말풍선이에요!
 // 캐릭터가 격려하거나 안내하는 메시지를 표시해줘요
-// 예: "좋아! 이제 시작해볼까?" 이런 식으로요
+// 크림톤 배경 + 따뜻한 테두리 + 꼬리 모양의 스티커 말풍선
 // =====================================================
 
 import { motion } from 'framer-motion'
@@ -22,7 +22,12 @@ export default function SpeechBubble({ text, character }) {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl rounded-bl-sm px-3 py-2 md:px-4 md:py-3 shadow-md max-w-[200px] md:max-w-[280px]"
+        className="relative rounded-[20px] rounded-bl-md px-3.5 py-2.5 md:px-5 md:py-3.5 max-w-[200px] md:max-w-[280px]"
+        style={{
+          background: 'var(--surface)',
+          border: '2px solid var(--border-warm)',
+          boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.8), 0 4px 10px rgba(0,0,0,0.05)',
+        }}
       >
         {/* 캐릭터의 메시지 텍스트 */}
         <p className="font-gaegu text-base md:text-[1.3rem] font-bold text-gray-800 leading-tight">{text}</p>

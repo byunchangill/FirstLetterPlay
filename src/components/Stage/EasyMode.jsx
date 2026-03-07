@@ -93,20 +93,20 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
         </p>
         <div className="grid grid-cols-2 gap-2 md:gap-4">
           {choices.map((choice) => {
-            let bg = 'bg-white'
-            let border = 'border-gray-200'
+            let bgColor = 'var(--surface)'
+            let borderColor = 'var(--border-warm-strong)'
             if (answered && choice === correctLabel) {
-              bg = 'bg-green-100'
-              border = 'border-green-500'
+              bgColor = '#e8f5e9'
+              borderColor = '#4CAF50'
             } else if (answered && choice === selected && choice !== correctLabel) {
-              bg = 'bg-red-100'
-              border = 'border-red-400'
+              bgColor = '#ffebee'
+              borderColor = '#ef5350'
             }
 
             return (
               <motion.button
                 key={choice}
-                whileTap={!answered ? { scale: 0.9 } : {}}
+                whileTap={!answered ? { scale: 0.93 } : {}}
                 animate={
                   answered && choice === selected && choice !== correctLabel
                     ? { x: [0, -5, 5, -5, 0] }
@@ -115,8 +115,12 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
                       : {}
                 }
                 onClick={() => handleSelect(choice)}
-                className={`${bg} border-3 ${border} rounded-2xl p-3 md:p-5 font-jua text-3xl md:text-5xl text-gray-800 shadow-md cursor-pointer min-h-[70px] md:min-h-[90px] flex items-center justify-center`}
-                style={{ borderWidth: '3px' }}
+                className="font-jua text-3xl md:text-5xl text-gray-800 cursor-pointer min-h-[70px] md:min-h-[90px] flex items-center justify-center p-3 md:p-5 rounded-[24px]"
+                style={{
+                  background: bgColor,
+                  border: `2.5px solid ${borderColor}`,
+                  boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.75), 0 3px 8px rgba(0,0,0,0.05)',
+                }}
               >
                 {choice}
               </motion.button>

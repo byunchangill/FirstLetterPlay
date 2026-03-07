@@ -538,11 +538,15 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
             ? { x: [-8, 8, -6, 6, -4, 4, 0], backgroundColor: '#ffebee' }
             : feedback === 'success'
               ? { scale: [1, 1.05, 1], backgroundColor: '#e8f5e9' }
-              : { backgroundColor: '#ffffff' }
+              : { backgroundColor: '#fffdf8' }
         }
         transition={{ duration: 0.4 }}
-        className="rounded-2xl shadow-lg p-2 mx-auto"
-        style={{ width: 300, height: 300, position: 'relative' }}
+        className="rounded-[28px] p-2 mx-auto"
+        style={{
+          width: 300, height: 300, position: 'relative',
+          border: '2px solid var(--border-warm)',
+          boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.8), 0 4px 10px rgba(80,80,80,0.07), 0 10px 22px rgba(80,80,80,0.05)',
+        }}
       >
         <canvas
           ref={guideCanvasRef}
@@ -570,7 +574,7 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
           <BigButton onClick={handleReplay} color="#2196F3" size="sm" disabled={isAnimating}>
             {isAnimating ? '보는 중...' : '획순 보기'}
           </BigButton>
-          <BigButton onClick={clearCanvas} color="#9E9E9E" size="sm">
+          <BigButton onClick={clearCanvas} color="#b8b0a8" size="sm">
             ↩ 다시
           </BigButton>
           <BigButton onClick={handleComplete} color={world.color} size="sm" disabled={!hasDrawn}>
@@ -621,7 +625,22 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
       <SpeechBubble text="빈칸을 채워봐!" character={character} />
 
       {/* 빈칸 카드 */}
-      <div className="w-full text-center bg-white rounded-2xl p-6 md:p-10 shadow-lg">
+      <div
+        className="w-full text-center rounded-[28px] p-6 md:p-10"
+        style={{
+          background: 'var(--surface)',
+          border: '2px solid var(--border-warm)',
+          boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.8), 0 6px 14px rgba(82,82,82,0.06), 0 14px 28px rgba(82,82,82,0.05)',
+        }}
+      >
+        {/* 힌트 이미지 (숫자 등 이미지가 있는 경우) */}
+        {item.image && world.imagePath && (
+          <img
+            src={`${world.imagePath}${item.image}`}
+            alt="hint"
+            className="w-16 h-16 md:w-20 md:h-20 object-contain mx-auto mb-3 drop-shadow-md"
+          />
+        )}
         <p className="font-jua text-4xl md:text-6xl text-gray-800">{blankWord}</p>
         {item.word && (
           <p className="font-gaegu font-bold text-xl md:text-3xl text-gray-500 mt-2">= {item.word}</p>
@@ -632,20 +651,22 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
       <div>
         <div className="flex gap-3 justify-center">
           {choices.map(choice => {
-            let bgColor = 'bg-white'
-            if (answered && choice === label) bgColor = 'bg-green-100'
-            else if (answered && choice === selected && choice !== label) bgColor = 'bg-red-100'
+            let bgStyle = 'var(--surface)'
+            let borderStyle = 'var(--border-warm-strong)'
+            if (answered && choice === label) { bgStyle = '#e8f5e9'; borderStyle = '#4CAF50' }
+            else if (answered && choice === selected && choice !== label) { bgStyle = '#ffebee'; borderStyle = '#ef5350' }
 
             return (
               <motion.button
                 key={choice}
-                whileTap={!answered ? { scale: 0.9 } : {}}
+                whileTap={!answered ? { scale: 0.93 } : {}}
                 animate={answered && choice === selected && choice !== label ? { x: [0, -3, 3, -3, 0] } : {}}
                 onClick={() => handleSelect(choice)}
-                className={`${bgColor} rounded-xl p-4 md:p-6 shadow-md font-jua text-3xl md:text-5xl text-gray-800 min-w-[72px] md:min-w-[90px] cursor-pointer`}
+                className="rounded-[22px] p-4 md:p-6 font-jua text-3xl md:text-5xl text-gray-800 min-w-[72px] md:min-w-[90px] cursor-pointer"
                 style={{
-                  borderWidth: '3px',
-                  borderColor: answered && choice === label ? '#4CAF50' : 'transparent',
+                  background: bgStyle,
+                  border: `2.5px solid ${borderStyle}`,
+                  boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.75), 0 3px 8px rgba(0,0,0,0.05)',
                 }}
               >
                 {choice}

@@ -141,9 +141,11 @@ export default function WorldMapPage() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate(`/world/${world.id}`)}  // 누르면 스테이지 목록으로 이동
-              className="p-5 rounded-2xl shadow-lg border border-white/40 text-left cursor-pointer relative overflow-hidden group"
+              className="p-5 rounded-[28px] text-left cursor-pointer relative overflow-hidden group"
               style={{
                 backgroundColor: world.bgColor,
+                border: '2px solid var(--border-warm)',
+                boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(80,80,80,0.07), 0 10px 22px rgba(80,80,80,0.05)',
               }}
             >
               {/* 마우스를 올리면 흰색 빛이 사라지는 효과 */}
@@ -224,8 +226,13 @@ function StageListView({ world, initialTab, character, growth, getStageStars, is
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-2 rounded-full font-jua text-xl transition-all ${activeTab === tab.id ? 'bg-white shadow-md text-gray-800 scale-105' : 'bg-white/40 text-gray-600 hover:bg-white/60'}`}
-              style={activeTab === tab.id ? { color: tab.color } : {}}
+              className={`px-6 py-2.5 rounded-full font-jua text-xl transition-all ${activeTab === tab.id ? 'text-gray-800 scale-105' : 'bg-white/40 text-gray-600 hover:bg-white/60'}`}
+              style={activeTab === tab.id ? {
+                background: 'var(--surface)',
+                border: '2px solid var(--border-warm)',
+                boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.8), 0 3px 8px rgba(80,80,80,0.08)',
+                color: tab.color,
+              } : {}}
             >
               {tab.name}
             </button>
@@ -250,11 +257,17 @@ function StageListView({ world, initialTab, character, growth, getStageStars, is
               whileTap={easyUnlocked ? { scale: 0.9 } : {}}
               // 잠금 해제된 스테이지만 눌러서 이동할 수 있어요
               onClick={() => easyUnlocked && navigate(`/stage/${currentWorld.id}/${index}`)}
-              className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl shadow-md cursor-pointer ${easyUnlocked
-                ? 'bg-white'
-                : 'bg-gray-200 opacity-60 cursor-not-allowed'  // 잠긴 스테이지는 회색이에요
+              className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-[24px] cursor-pointer ${easyUnlocked
+                ? ''
+                : 'opacity-60 cursor-not-allowed'
                 }`}
-              style={easyUnlocked && stars.total > 0 ? { border: `3px solid ${currentWorld.color}` } : {}}
+              style={{
+                background: easyUnlocked ? 'var(--surface)' : '#e8e4df',
+                border: easyUnlocked && stars.total > 0 ? `3px solid ${currentWorld.color}` : '2px solid var(--border-warm)',
+                boxShadow: easyUnlocked
+                  ? 'inset 0 2px 0 rgba(255,255,255,0.8), 0 3px 8px rgba(80,80,80,0.07)'
+                  : 'none',
+              }}
             >
               {/* 잠긴 스테이지에는 자물쇠 그림이 나와요 */}
               {!easyUnlocked && (

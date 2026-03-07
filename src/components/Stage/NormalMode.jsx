@@ -81,24 +81,25 @@ export default function NormalMode({ item, world, character, questionIndex, onAn
           const isCorrect = choiceLabel === label
           const isSelected = matchSelected && world.getLabel(matchSelected) === choiceLabel
 
-          // 배경색 결정: 정답은 초록색, 틀린 답은 빨간색
-          let bgColor = 'bg-white'
-          if (answered && isCorrect) bgColor = 'bg-green-100'
-          else if (answered && isSelected && !isCorrect) bgColor = 'bg-red-100'
+          let bgColor = 'var(--surface)'
+          let borderColor = 'var(--border-warm-strong)'
+          if (answered && isCorrect) { bgColor = '#e8f5e9'; borderColor = '#4CAF50' }
+          else if (answered && isSelected && !isCorrect) { bgColor = '#ffebee'; borderColor = '#ef5350' }
 
-          // 표시할 글자/이름 (예: "기차", "ㄱ" 등)
           const wordDisplay = choice.word || (world.id === 'numbers_en' ? choice.english : choice.korean) || choice.name || ''
 
           return (
             <motion.button
               key={choiceLabel}
-              whileTap={!answered ? { scale: 0.95 } : {}}
-              // 틀린 답이면 좌우로 흔드는 애니메이션
+              whileTap={!answered ? { scale: 0.97 } : {}}
               animate={answered && isSelected && !isCorrect ? { x: [0, -5, 5, -5, 0] } : {}}
               onClick={() => handleMatchSelect(choice)}
-              className={`w-full ${bgColor} rounded-2xl p-3 md:p-5 shadow-md flex items-center gap-3 md:gap-5 cursor-pointer min-h-[64px] md:min-h-[72px]`}
-              // 정답이면 초록 테두리
-              style={{ borderWidth: '3px', borderColor: answered && isCorrect ? '#4CAF50' : 'transparent' }}
+              className="w-full rounded-[22px] p-3 md:p-5 flex items-center gap-3 md:gap-5 cursor-pointer min-h-[64px] md:min-h-[72px]"
+              style={{
+                background: bgColor,
+                border: `2.5px solid ${borderColor}`,
+                boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.75), 0 3px 8px rgba(0,0,0,0.05)',
+              }}
             >
               {/* 그림 또는 아이콘 */}
               {choice.image

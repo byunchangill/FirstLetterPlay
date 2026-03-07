@@ -40,7 +40,12 @@ export default function RewardModal({ rewardData, character, onNext, onMap, hasN
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className="bg-white rounded-2xl p-4 md:p-6 shadow-lg space-y-2 md:space-y-3"
+        className="rounded-[28px] p-4 md:p-6 space-y-2 md:space-y-3"
+        style={{
+          background: 'var(--surface)',
+          border: '2px solid var(--border-warm)',
+          boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.8), 0 6px 14px rgba(82,82,82,0.06), 0 14px 28px rgba(82,82,82,0.05)',
+        }}
       >
         {/* 현재 레벨에 맞는 캐릭터 모습 */}
         <img src={getCharacterLevel(character, newLevel).image} alt={character.name} className="w-20 h-20 md:w-32 md:h-32 object-contain mx-auto drop-shadow-md" />

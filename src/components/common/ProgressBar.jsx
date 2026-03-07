@@ -11,7 +11,7 @@ export default function ProgressBar({ current, total, color = '#4CAF50', height 
   const percentage = total > 0 ? (current / total) * 100 : 0
 
   return (
-    <div className={`w-full bg-gray-200 rounded-full ${height} overflow-hidden`}>
+    <div className={`w-full rounded-full ${height} overflow-hidden`} style={{ background: '#ece6dd' }}>
       {/* 회색 배경 막대 위에 색칠된 진행 막대가 있어요 */}
       <motion.div
         initial={{ width: 0 }}

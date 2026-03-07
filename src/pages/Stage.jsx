@@ -259,7 +259,7 @@ export default function StagePage() {
                 <BigButton onClick={handleRetry} color="#FF9800" size="md">
                   다시 도전! <img src="/images/ui/replay.png" alt="replay" className="w-6 h-6 inline-block ml-1" />
                 </BigButton>
-                <BigButton onClick={() => navigate(`/world`)} color="#9E9E9E" size="md">
+                <BigButton onClick={() => navigate(`/world`)} color="#b8b0a8" size="md">
                   월드맵으로
                 </BigButton>
               </div>
@@ -322,7 +322,14 @@ function IntroView({ item, world, character, onStart }) {
       </motion.div>
 
       {/* 캐릭터 말풍선 + 소리 버튼 + 시작 버튼 카드 */}
-      <div className="flex flex-col items-center gap-4 md:gap-6 w-full bg-white/40 p-5 md:p-10 rounded-[2rem] shadow-xl backdrop-blur-sm border border-white/50">
+      <div
+        className="flex flex-col items-center gap-4 md:gap-6 w-full p-5 md:p-10 rounded-[32px] backdrop-blur-sm"
+        style={{
+          background: 'var(--surface-2)',
+          border: '2px solid var(--border-warm)',
+          boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.8), 0 6px 14px rgba(82,82,82,0.06), 0 14px 28px rgba(82,82,82,0.05)',
+        }}
+      >
         <SpeechBubble text={`${label}${character.greetings.learn}`} character={character} />
 
         <AudioButton
