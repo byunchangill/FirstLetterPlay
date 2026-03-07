@@ -330,10 +330,10 @@ function IntroView({ item, world, character, onStart }) {
         {/* 캐릭터가 글자 이름을 알려줘요 */}
         <SpeechBubble text={`${label}${character.greetings.learn}`} character={character} />
 
-        {/* 소리 듣기 버튼 (누르면 글자 발음을 들을 수 있어요) */}
+        {/* 소리 듣기 버튼 (누르면 글자 발음을 들을 수 있어요 - 선택된 캐릭터 목소리로!) */}
         <div className="flex justify-center">
           <AudioButton
-            onClick={() => play(`${world.audioPath}${item.audio}`)}
+            onClick={() => play(world.getSpelAudioUrl(item, character.id))}
             isPlaying={isPlaying}
             size="xl"
           />

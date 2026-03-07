@@ -13,14 +13,17 @@ export const worlds = [
   {
     id: 'consonants',
     name: '자음 나라',
-    icon: '\uD83C\uDFD4\uFE0F',
+    icon: '🏔️',
     color: '#4CAF50',
     bgColor: '#C8E6C9',
     description: '한글 자음을 배워요!',
     items: consonants,  // 자음 리스트
-    audioPath: '/audio/consonants/',  // 소리 파일 위치
+    audioPath: '/audio/consonants/',  // (레거시) 소리 파일 위치
     imagePath: '/images/matching/consonants/',  // 그림 파일 위치
     bgImage: '/images/worlds/consonant-bg.png',
+    // 캐릭터별 오디오 경로 함수들
+    getSpelAudioUrl: (item, charId) => `/audio/consonants/${charId}/spel/${item.audio}`,
+    getWordAudioUrl: (item, charId) => `/audio/consonants/${charId}/word/${item.wordAudio}`,
     getLabel: (item) => item.letter,
     getDisplayName: (item) => `${item.letter} (${item.name})`,
     getHint: (item) => `${item.letter}은 ${item.word}의 ${item.letter}이야!`,
@@ -28,7 +31,7 @@ export const worlds = [
   {
     id: 'vowels',
     name: '모음 나라',
-    icon: '\uD83C\uDF0A',
+    icon: '🌊',
     color: '#2196F3',
     bgColor: '#B3E5FC',
     description: '한글 모음을 배워요!',
@@ -36,6 +39,9 @@ export const worlds = [
     audioPath: '/audio/vowels/',
     imagePath: '/images/matching/vowels/',
     bgImage: '/images/worlds/vowel-bg.png',
+    // 캐릭터별 오디오 경로 함수들
+    getSpelAudioUrl: (item, charId) => `/audio/vowels/${charId}/spel/${item.audio}`,
+    getWordAudioUrl: (item, charId) => `/audio/vowels/${charId}/word/${item.wordAudio}`,
     getLabel: (item) => item.letter,
     getDisplayName: (item) => `${item.letter} (${item.name})`,
     getHint: (item) => `${item.letter}는 ${item.word}의 ${item.letter}!`,
@@ -43,7 +49,7 @@ export const worlds = [
   {
     id: 'numbers',
     name: '숫자 나라',
-    icon: '\uD83C\uDF1F',
+    icon: '🌟',
     color: '#FF9800',
     bgColor: '#FFF9C4',
     description: '숫자를 배워요!',
@@ -55,12 +61,15 @@ export const worlds = [
     tabs: [
       { id: 'kr', name: '한글', color: '#FF9800' },
       { id: 'en', name: '영어', color: '#4CAF50' }
-    ]
+    ],
+    // 기본 숫자 오디오 (한글 기준)
+    getSpelAudioUrl: (item, charId) => `/audio/numbers/${charId}/spelkr/${item.audioKr || item.audio}`,
+    getWordAudioUrl: (item, charId) => `/audio/numbers/${charId}/wordkr/${item.wordAudioKr || item.wordAudio}`,
   },
   {
     id: 'alphabet',
     name: '알파벳 나라',
-    icon: '\uD83D\uDE80',
+    icon: '🚀',
     color: '#FF5722',
     bgColor: '#FFE0B2',
     description: '영어 알파벳을 배워요!',
@@ -72,7 +81,10 @@ export const worlds = [
     tabs: [
       { id: 'upper', name: '대문자', color: '#FF5722' },
       { id: 'lower', name: '소문자', color: '#FF9800' }
-    ]
+    ],
+    // 캐릭터별 오디오 경로 함수들
+    getSpelAudioUrl: (item, charId) => `/audio/alphabet/${charId}/spel/${item.audio}`,
+    getWordAudioUrl: (item, charId) => `/audio/alphabet/${charId}/word/${item.wordAudio}`,
   },
 ]
 
@@ -90,6 +102,9 @@ export function getWorldById(id) {
       parentId: base.id,
       name: tab === 'upper' ? '알파벳 대문자' : '알파벳 소문자',
       color: tab === 'upper' ? '#FF5722' : '#FF9800',
+      // 대문자/소문자 모두 같은 audio 파일명 사용 (a.mp3, b.mp3 ...)
+      getSpelAudioUrl: (item, charId) => `/audio/alphabet/${charId}/spel/${item.audio}`,
+      getWordAudioUrl: (item, charId) => `/audio/alphabet/${charId}/word/${item.wordAudio}`,
       getLabel: (item) => tab === 'lower' ? item.lower : item.upper,
       getDisplayName: (item) => `${tab === 'lower' ? item.lower : item.upper} - ${item.word}`,
       getHint: (item) => `${tab === 'lower' ? item.lower : item.upper} is for ${item.word}!`,
@@ -108,12 +123,22 @@ export function getWorldById(id) {
       parentId: base.id,
       name: tab === 'kr' ? '숫자 나라' : '숫자 나라',
       color: tab === 'kr' ? '#FF9800' : '#4CAF50',
+      // 한글/영어 숫자 오디오 경로 (각각 다른 서브폴더)
+      getSpelAudioUrl: (item, charId) =>
+        tab === 'kr'
+          ? `/audio/numbers/${charId}/spelkr/${item.audioKr}`
+          : `/audio/numbers/${charId}/spelen/${item.audioEn}`,
+      getWordAudioUrl: (item, charId) =>
+        tab === 'kr'
+          ? `/audio/numbers/${charId}/wordkr/${item.wordAudioKr}`
+          : `/audio/numbers/${charId}/worden/${item.wordAudioEn}`,
       getLabel: (item) => tab === 'kr' ? String(item.number) : item.english,
       getDisplayName: (item) => `${item.number} - ${tab === 'kr' ? item.korean : item.english}`,
       getHint: (item) => `${item.number}은 ${tab === 'kr' ? "한글로 " + item.korean + " 또는 " + item.korean2 : "영어로 " + item.english}!`,
       items: base.items.map(item => ({
         ...item,
-        audio: tab === 'kr' ? item.audioKr : item.audioEn
+        audio: tab === 'kr' ? item.audioKr : item.audioEn,
+        wordAudio: tab === 'kr' ? item.wordAudioKr : item.wordAudioEn,
       }))
     }
     pseudoWorldsCache[id] = pseudo

@@ -4,7 +4,7 @@
 // 소리를 듣고 맞는 글자를 찾으면 돼요
 // =====================================================
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useAudio } from '../../hooks/useAudio'
 import SpeechBubble from '../common/SpeechBubble'
@@ -43,10 +43,6 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
     return shuffleArray([correctLabel, ...others])
   }, [item, world, correctLabel])
 
-  // 처음에 글자 소리를 재생해요
-  useEffect(() => {
-    play(`${world.audioPath}${item.audio}`)
-  }, [item])
 
   // 선택지를 눌렀을 때 실행되는 함수
   function handleSelect(choice) {
@@ -86,7 +82,7 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
 
         {/* 소리 다시 듣는 버튼 */}
         <AudioButton
-          onClick={() => play(`${world.audioPath}${item.audio}`)}
+          onClick={() => play(world.getWordAudioUrl(item, character.id))}
           isPlaying={isPlaying}
           size="lg"
         />
