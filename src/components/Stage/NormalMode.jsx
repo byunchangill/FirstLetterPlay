@@ -63,22 +63,19 @@ export default function NormalMode({ item, world, character, questionIndex, onAn
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -50 }}
-      className="w-full max-w-sm h-full flex flex-col py-2"
+      className="w-full max-w-sm md:max-w-md space-y-4 md:space-y-8"
     >
-      {/* 위쪽: 말풍선 + 큰 글자 (남은 공간을 꽉 채워요) */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-4">
-        {/* 캐릭터 지시 메시지 */}
-        <SpeechBubble text="맞는 짝을 찾아봐!" character={character} />
+      {/* 캐릭터 지시 메시지 */}
+      <SpeechBubble text="맞는 짝을 찾아봐!" character={character} />
 
-        {/* 큰 글자로 표시 + "이 글자의 친구는?" 질문 */}
-        <div className="text-center">
-          <span className="font-jua text-[5rem] md:text-[7rem] text-gray-800 leading-none">{label}</span>
-          <p className="font-gaegu text-lg md:text-xl font-bold text-gray-500 mt-2">이 글자의 친구는?</p>
-        </div>
+      {/* 큰 글자로 표시 + "이 글자의 친구는?" 질문 */}
+      <div className="text-center">
+        <span className="font-jua text-[4.5rem] md:text-[8rem] text-gray-800 leading-none">{label}</span>
+        <p className="font-gaegu text-lg md:text-2xl font-bold text-gray-500 mt-1">이 글자의 친구는?</p>
       </div>
 
-      {/* 아래쪽: 선택지들 (화면 하단에 붙어요) */}
-      <div className="flex-shrink-0 pb-2 space-y-2 md:space-y-3">
+      {/* 선택지들 (3개 항목: 정답 + 오답 2개) */}
+      <div className="space-y-2 md:space-y-4">
         {matchChoices.map((choice) => {
           const choiceLabel = world.getLabel(choice)
           const isCorrect = choiceLabel === label
@@ -99,17 +96,17 @@ export default function NormalMode({ item, world, character, questionIndex, onAn
               // 틀린 답이면 좌우로 흔드는 애니메이션
               animate={answered && isSelected && !isCorrect ? { x: [0, -5, 5, -5, 0] } : {}}
               onClick={() => handleMatchSelect(choice)}
-              className={`w-full ${bgColor} rounded-2xl p-3 md:p-4 shadow-md flex items-center gap-3 md:gap-4 cursor-pointer min-h-[64px]`}
+              className={`w-full ${bgColor} rounded-2xl p-3 md:p-5 shadow-md flex items-center gap-3 md:gap-5 cursor-pointer min-h-[64px] md:min-h-[72px]`}
               // 정답이면 초록 테두리
               style={{ borderWidth: '3px', borderColor: answered && isCorrect ? '#4CAF50' : 'transparent' }}
             >
               {/* 그림 또는 아이콘 */}
               {choice.image
-                ? <img src={`${world.imagePath}${choice.image}`} alt={wordDisplay} className="w-12 h-12 md:w-14 md:h-14 object-contain" />
-                : <span className="text-3xl md:text-4xl">📝</span>
+                ? <img src={`${world.imagePath}${choice.image}`} alt={wordDisplay} className="w-12 h-12 md:w-16 md:h-16 object-contain" />
+                : <span className="text-3xl md:text-5xl">📝</span>
               }
               {/* 글자/이름 텍스트 */}
-              <span className="font-jua text-2xl md:text-3xl text-gray-800">{wordDisplay}</span>
+              <span className="font-jua text-2xl md:text-4xl text-gray-800">{wordDisplay}</span>
             </motion.button>
           )
         })}

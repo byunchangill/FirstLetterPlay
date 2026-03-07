@@ -200,7 +200,7 @@ export default function StagePage() {
       </div>
 
       {/* 메인 콘텐츠 영역 (화면 단계에 따라 다른 화면을 보여줘요) */}
-      <div className={`flex-1 min-h-0 flex flex-col items-center px-4 pb-4 ${['easy', 'normal', 'hard'].includes(phase) ? 'justify-start' : 'justify-center'}`}>
+      <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-4 pb-4">
         <AnimatePresence mode="wait">
           {/* 인트로 화면: 글자 소개 + 소리 듣기 + 배우기 시작 버튼 */}
           {phase === 'intro' && (
@@ -257,7 +257,7 @@ export default function StagePage() {
               <SpeechBubble text={character.greetings.tryAgain} character={character} />
               <div className="flex gap-4 justify-center">
                 <BigButton onClick={handleRetry} color="#FF9800" size="md">
-                  다시 도전! 💪
+                  다시 도전! <img src="/images/ui/replay.png" alt="replay" className="w-6 h-6 inline-block ml-1" />
                 </BigButton>
                 <BigButton onClick={() => navigate(`/world`)} color="#9E9E9E" size="md">
                   월드맵으로
@@ -297,54 +297,43 @@ function IntroView({ item, world, character, onStart }) {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -30 }}
-      // 모바일: 세로 배치, 큰 화면: 가로 배치
-      className="w-full max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-4 md:gap-12"
+      className="w-full max-w-lg md:max-w-xl mx-auto flex flex-col items-center gap-6 md:gap-10"
     >
-      {/* 왼쪽(모바일에서는 위): 커다란 글자 + 연관 그림 */}
-      <div className="flex flex-col items-center gap-3 md:gap-6">
-        {/* 글자가 살살 흔들리며 관심을 끌어요 */}
-        <motion.div
-          animate={{ scale: [1, 1.05, 1], rotate: [0, -2, 2, 0] }}
-          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-          className="font-jua text-[5rem] md:text-[9rem] text-gray-800 leading-none drop-shadow-xl"
-        >
-          {label}
-        </motion.div>
+      {/* 커다란 글자 (살살 흔들리며 관심을 끌어요) */}
+      <motion.div
+        animate={{ scale: [1, 1.05, 1], rotate: [0, -2, 2, 0] }}
+        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+        className="font-jua text-[6rem] md:text-[10rem] text-gray-800 leading-none drop-shadow-xl"
+      >
+        {label}
+      </motion.div>
 
-        {/* 연관 그림 (예: ㄱ → 기차 그림) */}
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.3, type: 'spring' }}
-          className="flex justify-center"
-        >
-          {item.image
-            ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-32 h-32 md:w-56 md:h-56 object-contain drop-shadow-lg" />
-            : <span className="text-5xl md:text-8xl drop-shadow-md">📝</span>
-          }
-        </motion.div>
-      </div>
+      {/* 연관 그림 (예: ㄱ → 기린 그림) */}
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.3, type: 'spring' }}
+        className="flex justify-center"
+      >
+        {item.image
+          ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-36 h-36 md:w-56 md:h-56 object-contain drop-shadow-lg" />
+          : <span className="text-6xl md:text-8xl drop-shadow-md">📝</span>
+        }
+      </motion.div>
 
-      {/* 오른쪽(모바일에서는 아래): 캐릭터 말풍선 + 소리 버튼 + 시작 버튼 */}
-      <div className="flex flex-col items-center gap-4 md:gap-8 w-full max-w-md bg-white/40 p-5 md:p-10 rounded-[2rem] shadow-xl backdrop-blur-sm border border-white/50">
-        {/* 캐릭터가 글자 이름을 알려줘요 */}
+      {/* 캐릭터 말풍선 + 소리 버튼 + 시작 버튼 카드 */}
+      <div className="flex flex-col items-center gap-4 md:gap-6 w-full bg-white/40 p-5 md:p-10 rounded-[2rem] shadow-xl backdrop-blur-sm border border-white/50">
         <SpeechBubble text={`${label}${character.greetings.learn}`} character={character} />
 
-        {/* 소리 듣기 버튼 (누르면 글자 발음을 들을 수 있어요 - 선택된 캐릭터 목소리로!) */}
-        <div className="flex justify-center">
-          <AudioButton
-            onClick={() => play(world.getSpelAudioUrl(item, character.id))}
-            isPlaying={isPlaying}
-            size="xl"
-          />
-        </div>
+        <AudioButton
+          onClick={() => play(world.getSpelAudioUrl(item, character.id))}
+          isPlaying={isPlaying}
+          size="xl"
+        />
 
-        {/* "배우기 시작!" 버튼 */}
-        <div className="w-full flex justify-center">
-          <BigButton onClick={onStart} color={world.color} size="md">
-            배우기 시작! 🚀
-          </BigButton>
-        </div>
+        <BigButton onClick={onStart} color={world.color} size="md">
+          배우기 시작! <img src="/images/ui/play.png" alt="play" className="w-6 h-6 inline-block ml-1" />
+        </BigButton>
       </div>
     </motion.div>
   )

@@ -524,51 +524,48 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -50 }}
-      className="w-full max-w-sm h-full flex flex-col py-2"
+      className="w-full max-w-sm md:max-w-md space-y-3 md:space-y-6"
     >
-      {/* 위쪽: 말풍선 + 캔버스 (남은 공간을 꽉 채워요) */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-3">
-        <div style={{ width: 300 }} className="mx-auto">
-          <SpeechBubble text={`${label}을 따라 써볼까?`} character={character} />
-        </div>
-
-        <motion.div
-          animate={
-            feedback === 'fail'
-              ? { x: [-8, 8, -6, 6, -4, 4, 0], backgroundColor: '#ffebee' }
-              : feedback === 'success'
-                ? { scale: [1, 1.05, 1], backgroundColor: '#e8f5e9' }
-                : { backgroundColor: '#ffffff' }
-          }
-          transition={{ duration: 0.4 }}
-          className="rounded-2xl shadow-lg p-2 mx-auto"
-          style={{ width: 300, height: 300, position: 'relative' }}
-        >
-          {/* Guide canvas (bottom): ghost letter + stroke animation */}
-          <canvas
-            ref={guideCanvasRef}
-            width={288}
-            height={288}
-            className="rounded-xl"
-            style={{ position: 'absolute', top: 8, left: 8 }}
-          />
-          {/* Draw canvas (top): user's strokes */}
-          <canvas
-            ref={drawCanvasRef}
-            width={288}
-            height={288}
-            className="rounded-xl"
-            style={{ position: 'absolute', top: 8, left: 8, touchAction: 'none', userSelect: 'none', cursor: 'crosshair' }}
-            onPointerDown={startDraw}
-            onPointerMove={draw}
-            onPointerUp={stopDraw}
-            onPointerCancel={stopDraw}
-          />
-        </motion.div>
+      {/* 말풍선 */}
+      <div style={{ maxWidth: 300 }} className="mx-auto">
+        <SpeechBubble text={`${label}을 따라 써볼까?`} character={character} />
       </div>
 
-      {/* 아래쪽: 버튼들 (화면 하단에 붙어요) */}
-      <div className="flex-shrink-0 pb-2">
+      {/* 캔버스 (글자 쓰기 영역) */}
+      <motion.div
+        animate={
+          feedback === 'fail'
+            ? { x: [-8, 8, -6, 6, -4, 4, 0], backgroundColor: '#ffebee' }
+            : feedback === 'success'
+              ? { scale: [1, 1.05, 1], backgroundColor: '#e8f5e9' }
+              : { backgroundColor: '#ffffff' }
+        }
+        transition={{ duration: 0.4 }}
+        className="rounded-2xl shadow-lg p-2 mx-auto"
+        style={{ width: 300, height: 300, position: 'relative' }}
+      >
+        <canvas
+          ref={guideCanvasRef}
+          width={288}
+          height={288}
+          className="rounded-xl"
+          style={{ position: 'absolute', top: 8, left: 8 }}
+        />
+        <canvas
+          ref={drawCanvasRef}
+          width={288}
+          height={288}
+          className="rounded-xl"
+          style={{ position: 'absolute', top: 8, left: 8, touchAction: 'none', userSelect: 'none', cursor: 'crosshair' }}
+          onPointerDown={startDraw}
+          onPointerMove={draw}
+          onPointerUp={stopDraw}
+          onPointerCancel={stopDraw}
+        />
+      </motion.div>
+
+      {/* 버튼들 */}
+      <div>
         <div className="flex gap-2 justify-center flex-wrap">
           <BigButton onClick={handleReplay} color="#2196F3" size="sm" disabled={isAnimating}>
             {isAnimating ? '보는 중...' : '획순 보기'}
@@ -618,22 +615,21 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -50 }}
-      className="w-full max-w-sm h-full flex flex-col py-2"
+      className="w-full max-w-sm md:max-w-md space-y-5 md:space-y-8"
     >
-      {/* 위쪽: 말풍선 + 빈칸 카드 (남은 공간을 꽉 채워요) */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-5">
-        <SpeechBubble text="빈칸을 채워봐!" character={character} />
+      {/* 말풍선 */}
+      <SpeechBubble text="빈칸을 채워봐!" character={character} />
 
-        <div className="w-full text-center bg-white rounded-2xl p-6 md:p-8 shadow-lg">
-          <p className="font-jua text-4xl md:text-5xl text-gray-800">{blankWord}</p>
-          {item.word && (
-            <p className="font-gaegu font-bold text-xl md:text-2xl text-gray-500 mt-2">= {item.word}</p>
-          )}
-        </div>
+      {/* 빈칸 카드 */}
+      <div className="w-full text-center bg-white rounded-2xl p-6 md:p-10 shadow-lg">
+        <p className="font-jua text-4xl md:text-6xl text-gray-800">{blankWord}</p>
+        {item.word && (
+          <p className="font-gaegu font-bold text-xl md:text-3xl text-gray-500 mt-2">= {item.word}</p>
+        )}
       </div>
 
-      {/* 아래쪽: 선택지 버튼들 (화면 하단에 붙어요) */}
-      <div className="flex-shrink-0 pb-2">
+      {/* 선택지 버튼들 */}
+      <div>
         <div className="flex gap-3 justify-center">
           {choices.map(choice => {
             let bgColor = 'bg-white'
@@ -646,7 +642,7 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
                 whileTap={!answered ? { scale: 0.9 } : {}}
                 animate={answered && choice === selected && choice !== label ? { x: [0, -3, 3, -3, 0] } : {}}
                 onClick={() => handleSelect(choice)}
-                className={`${bgColor} rounded-xl p-4 md:p-5 shadow-md font-jua text-3xl md:text-4xl text-gray-800 min-w-[72px] md:min-w-[80px] cursor-pointer`}
+                className={`${bgColor} rounded-xl p-4 md:p-6 shadow-md font-jua text-3xl md:text-5xl text-gray-800 min-w-[72px] md:min-w-[90px] cursor-pointer`}
                 style={{
                   borderWidth: '3px',
                   borderColor: answered && choice === label ? '#4CAF50' : 'transparent',

@@ -89,7 +89,7 @@ export default function WorldMapPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen px-4 py-6 bg-gradient-to-b from-blue-100 to-green-50"
+      className="min-h-screen px-4 py-6 bg-gradient-to-b from-blue-100 to-green-50 flex flex-col"
     >
       {/* 상단 헤더: 뒤로 가기 + 내 캐릭터/레벨 표시 */}
       <div className="flex items-center justify-between mb-6">
@@ -105,12 +105,15 @@ export default function WorldMapPage() {
         </button>
       </div>
 
+      {/* 월드 카드 영역 - 태블릿/PC에서 수직 중앙 배치 (md: 768px 이상) */}
+      <div className="flex-1 flex items-start md:items-center">
+      <div className="w-full">
       <h1 className="font-jua text-3xl md:text-4xl text-center text-gray-800 mb-6 drop-shadow-sm">
         어디로 갈까?
       </h1>
 
       {/* 월드 카드 목록 (자음, 모음, 숫자, 알파벳 등) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg md:max-w-2xl mx-auto">
         {worlds.map((world, i) => {
           // 이 월드에서 획득한 별/클리어 개수를 계산해요
           let stats
@@ -176,6 +179,8 @@ export default function WorldMapPage() {
           )
         })}
       </div>
+      </div>
+      </div>
     </motion.div>
   )
 }
@@ -196,18 +201,20 @@ function StageListView({ world, initialTab, character, growth, getStageStars, is
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen px-4 py-6"
+      className="min-h-screen px-4 py-6 flex flex-col"
       style={{ background: `linear-gradient(to bottom, ${currentWorld.bgColor || world.bgColor}, #f8fafc)` }}
     >
-      {/* 상단: 뒤로 가기 + 월드 아이콘 + 이름 */}
-      <div className="flex items-center gap-3 mb-6">
+      {/* 상단: 뒤로 가기 + 월드 아이콘 + 이름 (오른쪽 정렬) */}
+      <div className="flex items-center mb-6">
         <BackButton to="/world" />
-        {world.bgImage ? (
-          <img src={world.bgImage} alt={world.name} className="w-10 h-10 object-contain drop-shadow-sm" />
-        ) : (
-          <span className="text-3xl">{world.icon}</span>
-        )}
-        <h1 className="font-jua text-3xl text-gray-800">{world.name}</h1>
+        <div className="ml-auto flex items-center gap-2">
+          {world.bgImage ? (
+            <img src={world.bgImage} alt={world.name} className="w-10 h-10 object-contain drop-shadow-sm" />
+          ) : (
+            <span className="text-3xl">{world.icon}</span>
+          )}
+          <h1 className="font-jua text-3xl text-gray-800">{world.name}</h1>
+        </div>
       </div>
 
       {/* 탭이 있는 월드(예: 자음)는 탭 버튼을 보여줘요 (초성 / 받침) */}
@@ -226,8 +233,9 @@ function StageListView({ world, initialTab, character, growth, getStageStars, is
         </div>
       )}
 
-      {/* 글자 버튼들 (ㄱ, ㄴ, ㄷ... 또는 a, b, c...) */}
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-3 max-w-lg mx-auto">
+      {/* 글자 버튼들 - 태블릿/PC에서 수직 중앙 배치 (md: 768px 이상) */}
+      <div className="flex-1 flex items-start md:items-center">
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 max-w-lg md:max-w-2xl mx-auto w-full">
         {currentWorld.items.map((item, index) => {
           const stars = getStageStars(currentWorld.id, index)  // 이 스테이지에서 딴 별 정보
           const easyUnlocked = isStageUnlocked(currentWorld.id, index, 'easy')  // 잠금 해제됐는지
@@ -253,7 +261,7 @@ function StageListView({ world, initialTab, character, growth, getStageStars, is
                 <img src="/images/ui/lock.png" alt="locked" className="w-8 h-8 object-contain mb-1 opacity-80" />
               )}
               {/* 글자 (예: ㄱ, a, 1) */}
-              <span className={`font-jua text-3xl md:text-4xl ${easyUnlocked ? 'text-gray-800' : 'text-gray-400'
+              <span className={`font-jua text-3xl md:text-4xl lg:text-5xl ${easyUnlocked ? 'text-gray-800' : 'text-gray-400'
                 }`}>
                 {label}
               </span>
@@ -277,6 +285,7 @@ function StageListView({ world, initialTab, character, growth, getStageStars, is
             </motion.button>
           )
         })}
+      </div>
       </div>
     </motion.div>
   )

@@ -15,9 +15,9 @@ export default function BackButton({ to }) {
       whileTap={{ scale: 0.9 }}  // 누르면 90%로 작아져요
       // to가 있으면 그 주소로 가고, 없으면 브라우저 뒤로 가기
       onClick={() => to ? navigate(to) : navigate(-1)}
-      className="w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center text-2xl cursor-pointer"
+      className="w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center cursor-pointer"
     >
-      ← {/* 왼쪽 화살표 */}
+      <img src="/images/ui/back.png" alt="뒤로가기" className="w-7 h-7 object-contain" />
     </motion.button>
   )
 }

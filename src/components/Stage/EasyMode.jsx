@@ -64,23 +64,21 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -50 }}
-      className="w-full max-w-sm h-full flex flex-col py-2"
+      className="w-full max-w-sm md:max-w-md space-y-4 md:space-y-8"
     >
-      {/* 위쪽: 그림 + 말풍선 + 소리 버튼 (남은 공간을 꽉 채워요) */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-3">
+      {/* 그림 이미지 */}
+      <div className="text-center">
+        {item.image
+          ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-36 h-36 md:w-56 md:h-56 object-contain mx-auto drop-shadow-md" />
+          : <div className="text-7xl md:text-9xl text-center">📝</div>
+        }
+      </div>
 
-        {/* 기린 이미지 (크게!) */}
-        <div className="text-center">
-          {item.image
-            ? <img src={`${world.imagePath}${item.image}`} alt={item.word || item.name || ''} className="w-40 h-40 md:w-52 md:h-52 object-contain mx-auto drop-shadow-md" />
-            : <div className="text-8xl md:text-9xl">📝</div>
-          }
-        </div>
+      {/* 캐릭터가 힌트를 알려줘요 (예: "ㄱ은 기린의 ㄱ이야!") */}
+      <SpeechBubble text={hint} character={character} />
 
-        {/* 캐릭터가 힌트를 알려줘요 (예: "기역") */}
-        <SpeechBubble text={hint} character={character} />
-
-        {/* 소리 다시 듣는 버튼 */}
+      {/* 소리 듣기 버튼 */}
+      <div className="flex justify-center">
         <AudioButton
           onClick={() => play(world.getWordAudioUrl(item, character.id))}
           isPlaying={isPlaying}
@@ -88,12 +86,12 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
         />
       </div>
 
-      {/* 아래쪽: 4개의 선택지 (화면 하단에 붙어요) */}
-      <div className="flex-shrink-0 pb-2">
-        <p className="font-gaegu text-center text-lg md:text-2xl font-bold text-gray-700 mb-2 leading-tight">
+      {/* 4개의 선택지 */}
+      <div>
+        <p className="font-gaegu text-center text-lg md:text-3xl font-bold text-gray-700 mb-2 leading-tight">
           맞는 글자를 눌러봐!
         </p>
-        <div className="grid grid-cols-2 gap-2 md:gap-3">
+        <div className="grid grid-cols-2 gap-2 md:gap-4">
           {choices.map((choice) => {
             let bg = 'bg-white'
             let border = 'border-gray-200'
@@ -117,7 +115,7 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
                       : {}
                 }
                 onClick={() => handleSelect(choice)}
-                className={`${bg} border-3 ${border} rounded-2xl p-3 md:p-4 font-jua text-3xl md:text-4xl text-gray-800 shadow-md cursor-pointer min-h-[70px] md:min-h-[80px] flex items-center justify-center`}
+                className={`${bg} border-3 ${border} rounded-2xl p-3 md:p-5 font-jua text-3xl md:text-5xl text-gray-800 shadow-md cursor-pointer min-h-[70px] md:min-h-[90px] flex items-center justify-center`}
                 style={{ borderWidth: '3px' }}
               >
                 {choice}
@@ -126,6 +124,7 @@ export default function EasyMode({ item, world, character, questionIndex, onAnsw
           })}
         </div>
       </div>
+
     </motion.div>
   )
 }
