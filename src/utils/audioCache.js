@@ -1,11 +1,12 @@
 // =====================================================
 // audioCache.js - Web Audio API 기반 오디오 캐시
-// fetch → decodeAudioData (프리로드 시 디코딩 완료) → 클릭 즉시 재생
-// AudioBuffer는 개수 제한 없음 (HTML Audio의 ~16개 제한 없음)
+// 모바일: unlock 전 → raw ArrayBuffer 보관, unlock 후 → 일괄 디코딩
+// PC: AudioContext가 바로 running이므로 즉시 디코딩
 // =====================================================
 
 // --- 캐시 저장소 ---
-const bufferCache = new Map()  // src → AudioBuffer (디코딩 완료)
+const bufferCache = new Map()  // src → AudioBuffer (디코딩 완료, 즉시 재생 가능)
+const rawCache = new Map()     // src → ArrayBuffer (unlock 전 임시 보관)
 const pendingMap = new Map()   // src → Promise (진행 중인 fetch)
 
 // --- AudioContext ---
@@ -21,9 +22,6 @@ function getContext() {
   }
   return audioCtx
 }
-
-// 모듈 로드 시 AudioContext 미리 생성 (suspended 상태지만 디코딩은 가능)
-getContext()
 
 // --- 동시 fetch 큐 ---
 const MAX_CONCURRENT = 4
@@ -43,18 +41,22 @@ function processQueue() {
 }
 
 function doFetch(src) {
-  const ctx = getContext()
   return fetch(src)
     .then(res => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       return res.arrayBuffer()
     })
     .then(arrayBuf => {
-      if (!ctx) return
-      return ctx.decodeAudioData(arrayBuf)
-    })
-    .then(audioBuffer => {
-      if (audioBuffer) bufferCache.set(src, audioBuffer)
+      const ctx = getContext()
+      if (unlocked && ctx) {
+        // unlock 완료 상태 → 즉시 디코딩
+        return ctx.decodeAudioData(arrayBuf).then(audioBuffer => {
+          bufferCache.set(src, audioBuffer)
+        })
+      } else {
+        // unlock 전 → raw 데이터 보관 (나중에 디코딩)
+        rawCache.set(src, arrayBuf)
+      }
     })
     .catch(() => {})
     .finally(() => {
@@ -68,9 +70,20 @@ export function unlockAudio() {
   unlocked = true
 
   const ctx = getContext()
-  if (ctx && ctx.state === 'suspended') {
+  if (!ctx) return
+
+  // AudioContext 활성화
+  if (ctx.state === 'suspended') {
     ctx.resume()
   }
+
+  // 보관해둔 raw ArrayBuffer들을 일괄 디코딩
+  for (const [src, arrayBuf] of rawCache) {
+    ctx.decodeAudioData(arrayBuf).then(audioBuffer => {
+      bufferCache.set(src, audioBuffer)
+    }).catch(() => {})
+  }
+  rawCache.clear()
 }
 
 // 앱 시작 시 첫 터치/클릭에 잠금 해제
@@ -88,7 +101,7 @@ if (typeof document !== 'undefined') {
 
 export function preloadAudio(src, priority = false) {
   if (!src) return Promise.resolve()
-  if (bufferCache.has(src)) return Promise.resolve()
+  if (bufferCache.has(src) || rawCache.has(src)) return Promise.resolve()
   if (pendingMap.has(src)) return pendingMap.get(src)
 
   const promise = new Promise((resolve) => {
@@ -126,12 +139,32 @@ export function stopCurrentAudio() {
 export function playAudio(src, onStart, onEnd, onError) {
   if (!src) return Promise.resolve()
 
+  // 재생 시점에 context가 suspended면 resume (버튼 클릭 = 유저 제스처)
+  const ctx = getContext()
+  if (ctx && ctx.state === 'suspended') {
+    ctx.resume()
+  }
+
+  // rawCache에 있지만 아직 디코딩 안 된 경우 → 즉석 디코딩
+  if (!bufferCache.has(src) && rawCache.has(src) && ctx) {
+    const raw = rawCache.get(src)
+    rawCache.delete(src)
+    return ctx.decodeAudioData(raw)
+      .then(audioBuffer => {
+        bufferCache.set(src, audioBuffer)
+        return playBuffer(audioBuffer, onStart, onEnd, onError)
+      })
+      .catch(() => {
+        if (onError) onError()
+      })
+  }
+
   const buffer = bufferCache.get(src)
   if (buffer) {
     return playBuffer(buffer, onStart, onEnd, onError)
   }
 
-  // 아직 디코딩 안 됐으면 기다린 후 재생
+  // 아직 fetch도 안 됐으면 기다린 후 재생
   return (async () => {
     if (pendingMap.has(src)) {
       const idx = queue.findIndex(j => j.src === src)
@@ -142,6 +175,16 @@ export function playAudio(src, onStart, onEnd, onError) {
       await pendingMap.get(src)
     } else {
       await preloadAudio(src, true)
+    }
+
+    // fetch 완료 후 rawCache에 있으면 디코딩
+    if (!bufferCache.has(src) && rawCache.has(src) && ctx) {
+      const raw = rawCache.get(src)
+      rawCache.delete(src)
+      try {
+        const audioBuffer = await ctx.decodeAudioData(raw)
+        bufferCache.set(src, audioBuffer)
+      } catch (e) {}
     }
 
     const buf = bufferCache.get(src)
@@ -184,7 +227,7 @@ function playBuffer(buffer, onStart, onEnd, onError) {
   })
 }
 
-// 하위 호환 (사용하는 곳 없으면 무시)
+// 하위 호환
 export function getCachedAudio() {
   return null
 }
