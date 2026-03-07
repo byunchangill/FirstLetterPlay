@@ -601,21 +601,23 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
   const isEnglish = world.id.endsWith('_en') || (item.upper !== undefined)
   const blankWord = wordDisplay ? (isEnglish ? `[  ]${wordDisplay.slice(1)}` : `[ ] ${wordDisplay.slice(1)}`) : `[ ] = ${label}`
 
-  // 숫자 스테이지는 숫자 대신 한글/영어 단어로 선택지를 만들어요 (예: 4 → 사)
-  const correctWord = world.id === 'numbers_kr' ? item.korean
-    : world.id === 'numbers_en' ? item.english
-    : label
+  // 스테이지별로 선택지에 보여줄 "정답 단어"를 결정해요
+  // - 숫자: 숫자 대신 한글/영어 단어 (예: 4 → 사, four)
+  // - 자음/모음: 자모 글자 대신 단어의 첫 글자 (예: ㄱ → 기, ㅏ → 아)
+  const getItemChoiceWord = (o) => {
+    if (world.id === 'numbers_kr') return o.korean
+    if (world.id === 'numbers_en') return o.english
+    if (world.id === 'consonants' || world.id === 'vowels') return o.word?.[0] ?? world.getLabel(o)
+    return world.getLabel(o)
+  }
+  const correctWord = getItemChoiceWord(item)
 
   const choices = useMemo(() => {
     const others = world.items
       .filter((_, i) => i !== world.items.indexOf(item))
       .sort(() => Math.random() - 0.5)
       .slice(0, 2)
-      .map(o => {
-        if (world.id === 'numbers_kr') return o.korean
-        if (world.id === 'numbers_en') return o.english
-        return world.getLabel(o)
-      })
+      .map(o => getItemChoiceWord(o))
     return shuffleArray([correctWord, ...others])
   }, [item, world, correctWord])
 
@@ -661,9 +663,9 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
         )}
       </div>
 
-      {/* 선택지 버튼들 */}
-      <div>
-        <div className="flex gap-3 justify-center">
+      {/* 선택지 버튼들 - 위 카드 너비에 맞춰 균등하게 배치 */}
+      <div className="w-full">
+        <div className="flex gap-3 w-full">
           {choices.map(choice => {
             let bgStyle = 'var(--surface)'
             let borderStyle = 'var(--border-warm-strong)'
@@ -676,7 +678,7 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
                 whileTap={!answered ? { scale: 0.93 } : {}}
                 animate={answered && choice === selected && choice !== correctWord ? { x: [0, -3, 3, -3, 0] } : {}}
                 onClick={() => handleSelect(choice)}
-                className="rounded-[22px] p-4 md:p-6 font-jua text-3xl md:text-5xl text-gray-800 min-w-[72px] md:min-w-[90px] cursor-pointer"
+                className="flex-1 rounded-[22px] p-4 md:p-6 font-jua text-3xl md:text-5xl text-gray-800 cursor-pointer"
                 style={{
                   background: bgStyle,
                   border: `2.5px solid ${borderStyle}`,
