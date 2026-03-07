@@ -23,20 +23,6 @@ const pendingMap = new Map()    // src → Promise (fetch 진행 중)
 let audioCtx = null
 let currentSource = null  // Web Audio 재생 중인 source
 
-// --- HTML Audio 풀 관리 ---
-const MAX_POOL = 10
-
-function evictPool(keepSrc) {
-  if (audioPool.size < MAX_POOL) return
-  for (const [key, a] of audioPool) {
-    if (key === keepSrc) continue
-    a.pause()
-    a.removeAttribute('src')
-    a.load()
-    audioPool.delete(key)
-    if (audioPool.size < MAX_POOL) break
-  }
-}
 
 // --- 오디오 잠금 해제 ---
 let unlocked = false
@@ -284,7 +270,6 @@ function playWithHtmlAudio(audio, src, onStart, onEnd, onError, isPooled) {
       audio.currentTime = 0
     } else {
       // 새로 만든 Audio → pool에 저장
-      evictPool(src)
       audioPool.set(src, audio)
     }
 
