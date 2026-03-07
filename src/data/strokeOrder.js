@@ -1,5 +1,12 @@
-// Stroke path data as normalized [x, y] coordinates (0.0 ~ 1.0)
-// Each entry is an array of strokes; each stroke is an array of [x, y] points
+// =====================================================
+// 📖 strokeOrder.js - 모든 글자의 획순(획 데이터) 정보예요!
+// 각 글자를 좌표로 표현해서 손가락으로 따라 그릴 수 있게 해요
+// 좌표는 0~1 범위의 정규화된 값이에요 (캔버스 어디든 확대/축소 가능)
+// 획 순서: 획순 번호대로 같은 순서로 배열되어 있어요
+// =====================================================
+
+// 획 경로 데이터: [x, y] 정규화 좌표 (0.0 ~ 1.0 범위)
+// 각 항목은 획 배열이고, 각 획은 [x, y] 점들의 배열이에요
 
 const strokeOrder = {
   // ===== Korean Consonants (자음) =====

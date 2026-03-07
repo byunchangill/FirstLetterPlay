@@ -1,3 +1,9 @@
+// =====================================================
+// 📖 numbers.js - 숫자 1~10의 정보예요!
+// 각 숫자마다 한글(한자), 한글(순우리말), 영문, 그림, 소리 파일이 있어요
+// 예: 1 → 일 / 하나 / one
+// =====================================================
+
 export const numbers = [
   { number: 1,  korean: '일', korean2: '하나',  english: 'one',   image: '1.png',  audioKr: '1-kr.mp3', audioEn: '1-en.mp3' },
   { number: 2,  korean: '이', korean2: '둘',  english: 'two',   image: '2.png',  audioKr: '2-kr.mp3', audioEn: '2-en.mp3' },

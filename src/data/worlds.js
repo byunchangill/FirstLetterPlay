@@ -1,3 +1,9 @@
+// =====================================================
+// 📖 worlds.js - 게임의 월드(세계)들의 정보예요!
+// 각 월드는 자음, 모음, 숫자, 알파벳 중 하나를 배우는 곳이에요
+// 각 월드마다 다른 배경색, 아이콘, 학습 항목이 있어요
+// =====================================================
+
 import { consonants } from './consonants'
 import { vowels } from './vowels'
 import { numbers } from './numbers'
@@ -11,9 +17,9 @@ export const worlds = [
     color: '#4CAF50',
     bgColor: '#C8E6C9',
     description: '한글 자음을 배워요!',
-    items: consonants,
-    audioPath: '/audio/consonants/',
-    imagePath: '/images/matching/consonants/',
+    items: consonants,  // 자음 리스트
+    audioPath: '/audio/consonants/',  // 소리 파일 위치
+    imagePath: '/images/matching/consonants/',  // 그림 파일 위치
     bgImage: '/images/worlds/consonant-bg.png',
     getLabel: (item) => item.letter,
     getDisplayName: (item) => `${item.letter} (${item.name})`,

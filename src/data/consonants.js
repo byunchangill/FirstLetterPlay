@@ -1,3 +1,9 @@
+// =====================================================
+// 📖 consonants.js - 한글 자음들의 정보예요!
+// 각 자음마다 이름, 예시 단어, 그림, 소리 파일이 있어요
+// 예: ㄱ(기역), ㄴ(니은), ㄷ(디귿) 등등
+// =====================================================
+
 export const consonants = [
   { letter: '\u3131', name: '\uAE30\uC5ED', word: '\uAE30\uB9B0',   image: 'giraffe.png',   audio: '\u3131.mp3',   wordAudio: '\u3131-word.mp3' },
   { letter: '\u3134', name: '\uB2C8\uC740', word: '\uB098\uBE44',   image: 'butterfly.png', audio: '\u3134.mp3',   wordAudio: '\u3134-word.mp3' },

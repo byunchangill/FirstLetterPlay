@@ -1,3 +1,9 @@
+// =====================================================
+// 📖 alphabet.js - 영문 알파벳들의 정보예요!
+// 대문자, 소문자, 예시 단어, 그림, 소리 파일을 저장해요
+// 예: A-a(Apple), B-b(Bear), C-c(Cat) 등등
+// =====================================================
+
 export const alphabet = [
   { upper: 'A', lower: 'a', word: 'Apple',     image: 'apple.png',     audio: 'a.mp3', wordAudio: 'a-word.mp3' },
   { upper: 'B', lower: 'b', word: 'Bear',      image: 'bear.png',      audio: 'b.mp3', wordAudio: 'b-word.mp3' },

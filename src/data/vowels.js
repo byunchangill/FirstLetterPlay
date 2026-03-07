@@ -1,3 +1,9 @@
+// =====================================================
+// 📖 vowels.js - 한글 모음들의 정보예요!
+// 각 모음마다 이름, 예시 단어, 그림, 소리 파일이 있어요
+// 예: ㅏ(아), ㅑ(야), ㅓ(어) 등등
+// =====================================================
+
 export const vowels = [
   { letter: '\u314F', name: '\uC544', word: '\uC544\uC774\uC2A4\uD06C\uB9BC', image: 'icecream.png', audio: '\u314F.mp3', wordAudio: '\u314F-word.mp3' },
   { letter: '\u3151', name: '\uC57C', word: '\uC57C\uAD6C\uACF5',     image: 'baseball.png', audio: '\u3151.mp3', wordAudio: '\u3151-word.mp3' },

@@ -1,20 +1,29 @@
+// =====================================================
+// 📊 useProgress.js - 학습 진도를 저장하고 불러오는 훅이에요!
+// 어느 스테이지를 몇 개 별로 클리어했는지 기억해요
+// 예: "자음 나라 1번 쉬움 난이도: 3별" 같은 정보를 저장해요
+// =====================================================
+
 import { useState, useCallback, useEffect } from 'react'
 import { db } from '../db/dexie'
 import { useCharacter } from '../context/CharacterContext'
 
 export function useProgress() {
   const { profile } = useCharacter()
-  const characterId = profile?.characterId
-  const [progressMap, setProgressMap] = useState({})
+  const characterId = profile?.characterId  // 내 캐릭터 아이디
+  const [progressMap, setProgressMap] = useState({})  // 진도 정보를 메모리에 저장
 
+  // loadProgress: 데이터베이스에서 진도 정보를 불러와요
   const loadProgress = useCallback(async (area) => {
     if (!characterId) return []
+    // 내 캐릭터의 진도 정보를 찾아요 (area별로)
     const records = await db.progress
       .where('characterId')
       .equals(characterId)
       .filter(r => r.area === area)
       .toArray()
 
+    // 빠른 조회를 위해 맵에 저장해요
     const map = {}
     for (const r of records) {
       const key = `${characterId}-${r.area}-${r.stageIndex}-${r.difficulty}`
