@@ -86,7 +86,12 @@ export default function NormalMode({ item, world, character, questionIndex, onAn
           if (answered && isCorrect) { bgColor = '#e8f5e9'; borderColor = '#4CAF50' }
           else if (answered && isSelected && !isCorrect) { bgColor = '#ffebee'; borderColor = '#ef5350' }
 
-          const wordDisplay = choice.word || (world.id === 'numbers_en' ? choice.english : choice.korean) || choice.name || ''
+          const baseWord = choice.word || (world.id.endsWith('_en') ? choice.english : choice.korean) || choice.name || ''
+          const wordDisplay = world.id === 'alphabet_upper'
+            ? baseWord.toUpperCase()
+            : world.id === 'alphabet_lower'
+              ? baseWord.toLowerCase()
+              : baseWord
 
           return (
             <motion.button

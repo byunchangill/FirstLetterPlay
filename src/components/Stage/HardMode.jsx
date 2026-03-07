@@ -592,25 +592,39 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
   const [selected, setSelected] = useState(null)
   const [answered, setAnswered] = useState(false)
 
-  const wordDisplay = item.word || (world.id === 'numbers_en' ? item.english : item.korean) || ''
-  const isEnglish = world.id === 'numbers_en' || (item.upper !== undefined)
+  const rawWord = item.word || (world.id.endsWith('_en') ? item.english : item.korean) || ''
+  const wordDisplay = world.id === 'alphabet_upper'
+    ? rawWord.toUpperCase()
+    : world.id === 'alphabet_lower'
+      ? rawWord.toLowerCase()
+      : rawWord
+  const isEnglish = world.id.endsWith('_en') || (item.upper !== undefined)
   const blankWord = wordDisplay ? (isEnglish ? `[  ]${wordDisplay.slice(1)}` : `[ ] ${wordDisplay.slice(1)}`) : `[ ] = ${label}`
+
+  // 숫자 스테이지는 숫자 대신 한글/영어 단어로 선택지를 만들어요 (예: 4 → 사)
+  const correctWord = world.id === 'numbers_kr' ? item.korean
+    : world.id === 'numbers_en' ? item.english
+    : label
 
   const choices = useMemo(() => {
     const others = world.items
       .filter((_, i) => i !== world.items.indexOf(item))
       .sort(() => Math.random() - 0.5)
       .slice(0, 2)
-      .map(o => world.getLabel(o))
-    return shuffleArray([label, ...others])
-  }, [item, world, label])
+      .map(o => {
+        if (world.id === 'numbers_kr') return o.korean
+        if (world.id === 'numbers_en') return o.english
+        return world.getLabel(o)
+      })
+    return shuffleArray([correctWord, ...others])
+  }, [item, world, correctWord])
 
   function handleSelect(choice) {
     if (answered) return
     setSelected(choice)
     setAnswered(true)
     setTimeout(() => {
-      onAnswer(choice === label)
+      onAnswer(choice === correctWord)
     }, 200)
   }
 
@@ -643,7 +657,7 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
         )}
         <p className="font-jua text-4xl md:text-6xl text-gray-800">{blankWord}</p>
         {item.word && (
-          <p className="font-gaegu font-bold text-xl md:text-3xl text-gray-500 mt-2">= {item.word}</p>
+          <p className="font-gaegu font-bold text-xl md:text-3xl text-gray-500 mt-2">= {wordDisplay}</p>
         )}
       </div>
 
@@ -653,14 +667,14 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
           {choices.map(choice => {
             let bgStyle = 'var(--surface)'
             let borderStyle = 'var(--border-warm-strong)'
-            if (answered && choice === label) { bgStyle = '#e8f5e9'; borderStyle = '#4CAF50' }
-            else if (answered && choice === selected && choice !== label) { bgStyle = '#ffebee'; borderStyle = '#ef5350' }
+            if (answered && choice === correctWord) { bgStyle = '#e8f5e9'; borderStyle = '#4CAF50' }
+            else if (answered && choice === selected && choice !== correctWord) { bgStyle = '#ffebee'; borderStyle = '#ef5350' }
 
             return (
               <motion.button
                 key={choice}
                 whileTap={!answered ? { scale: 0.93 } : {}}
-                animate={answered && choice === selected && choice !== label ? { x: [0, -3, 3, -3, 0] } : {}}
+                animate={answered && choice === selected && choice !== correctWord ? { x: [0, -3, 3, -3, 0] } : {}}
                 onClick={() => handleSelect(choice)}
                 className="rounded-[22px] p-4 md:p-6 font-jua text-3xl md:text-5xl text-gray-800 min-w-[72px] md:min-w-[90px] cursor-pointer"
                 style={{

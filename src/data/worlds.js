@@ -107,7 +107,13 @@ export function getWorldById(id) {
       getWordAudioUrl: (item, charId) => `/audio/alphabet/${charId}/word/${item.wordAudio}`,
       getLabel: (item) => tab === 'lower' ? item.lower : item.upper,
       getDisplayName: (item) => `${tab === 'lower' ? item.lower : item.upper} - ${item.word}`,
-      getHint: (item) => `${tab === 'lower' ? item.lower : item.upper} is for ${item.word}!`,
+      getHint: (item) => {
+        const letter = tab === 'lower' ? item.lower : item.upper
+        const word = tab === 'lower' ? item.word.toLowerCase() : item.word.toUpperCase()
+        // 한국어 발음이 받침으로 끝나는 알파벳: L(엘), M(엠), N(엔)
+        const needsEun = ['L', 'M', 'N'].includes(letter.toUpperCase())
+        return `${letter}${needsEun ? '은' : '는'} ${word}의 ${letter}${needsEun ? '이야' : '야'}!`
+      },
     }
     pseudoWorldsCache[id] = pseudo
     return pseudo
