@@ -34,7 +34,11 @@ function doFetch(src) {
     .then(blob => {
       const blobUrl = URL.createObjectURL(blob)
       blobCache.set(src, blobUrl)
-      // Blob URL만 저장! Audio 엘리먼트는 playAudio에서 유저 제스처 안에서 생성
+      // Audio 엘리먼트를 미리 생성하고 load()로 디코딩해둬요
+      // → 모바일에서도 클릭 즉시 재생 가능!
+      const audio = new Audio(blobUrl)
+      audio.load()
+      audioPool.set(src, audio)
     })
     .catch(() => {})
     .finally(() => {
