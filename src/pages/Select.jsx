@@ -23,6 +23,13 @@ export default function SelectPage() {
   // selectedChar: 선택된 캐릭터의 정보를 찾아줘요
   const selectedChar = characters.find(c => c.id === selected)
 
+  // 캐릭터 선택 시 hello 음성을 재생해요
+  function handleSelectCharacter(id) {
+    setSelected(id)
+    const audio = new Audio(`/audio/characters/${id}/hello.mp3`)
+    audio.play().catch(() => {})
+  }
+
   // 시작 버튼을 눌렀을 때 실행돼요
   async function handleStart() {
     if (!selected) return  // 아무도 안 골랐으면 아무것도 안 해요
@@ -66,7 +73,7 @@ export default function SelectPage() {
                   transition={{ delay: i * 0.1, duration: 0.3, ease: 'easeOut' }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setSelected(char.id)}
+                  onClick={() => handleSelectCharacter(char.id)}
                   className={`flex flex-col items-center p-4 md:p-6 rounded-[24px] cursor-pointer transition-colors outline-none ${isSelected ? 'z-10' : ''}`}
                   style={{
                     backgroundColor: isSelected ? char.bgColor : 'var(--surface)',
@@ -110,7 +117,7 @@ export default function SelectPage() {
                 {/* 시작 버튼 */}
                 <div className="flex justify-center w-full pb-8">
                   <BigButton onClick={handleStart} color={selectedChar.color}>
-                    이 친구와 시작! 🎉
+                    이 친구와 시작! ✨
                   </BigButton>
                 </div>
               </motion.div>

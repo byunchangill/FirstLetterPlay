@@ -25,7 +25,7 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r},${g},${b},${alpha})`
 }
 
-export default function BigButton({ children, onClick, color = '#4CAF50', size = 'lg', className = '', disabled = false }) {
+export default function BigButton({ children, onClick, color = '#4CAF50', size = 'lg', className = '', disabled = false, style: styleProp = {} }) {
   // 버튼 크기 옵션들 (sm: 작음, md: 중간, lg: 큼)
   const sizeClasses = {
     sm: 'px-5 py-2.5 text-lg min-h-[48px]',
@@ -45,6 +45,7 @@ export default function BigButton({ children, onClick, color = '#4CAF50', size =
         background: `linear-gradient(180deg, ${actualColor} 0%, ${darken(actualColor, 24)} 100%)`,
         boxShadow: disabled ? 'none' : `inset 0 2px 0 rgba(255,255,255,0.28), 0 5px 12px ${hexToRgba(actualColor, 0.3)}`,
         border: 'none',
+        ...styleProp,
       }}
     >
       {children}

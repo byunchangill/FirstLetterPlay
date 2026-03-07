@@ -21,7 +21,7 @@ export const characters = [
     ],
     greetings: {
     name: '다이노',
-      hello: '안녕! 나는 다이노야! 같이 공부하자!',
+      hello: '안녕! 나는 다이노야! 같이 해볼까?',
       great: '대단해! 정말 잘했어!',
       tryAgain: '괜찮아~ 다시 해보자!',
       learn: '을 배워볼까?',
@@ -41,7 +41,7 @@ export const characters = [
       { level: 8, image: '/images/characters/tobot-4.png', name: '로봇 타이탄' },
     ],
     greetings: {
-      hello: '출동! 나는 로봇이야! 함께 배우자!',
+      hello: '삐빅! 나는 로봇! 같이 시작할까?',
       great: '미션 성공! 대단해!',
       tryAgain: '다시 도전! 할 수 있어!',
       learn: '을 배워볼까?',
@@ -61,7 +61,7 @@ export const characters = [
       { level: 8, image: '/images/characters/elsa-4.png', name: '여왕 공주' },
     ],
     greetings: {
-      hello: '안녕~ 나는 공주야! 같이 놀자!',
+      hello: '안녕~ 나는 공주야! 함께 해볼까?',
       great: '정말 멋져! 잘했어!',
       tryAgain: '괜찮아~ 한번 더 해보자!',
       learn: '을 배워볼까?',
@@ -81,7 +81,7 @@ export const characters = [
       { level: 8, image: '/images/characters/hatchping-4.png', name: '슈퍼 요정' },
     ],
     greetings: {
-      hello: '안녕! 나는 요정이야! 신나게 배우자!',
+      hello: '안녕! 나는 요정이야! 같이 시작해볼까?',
       great: '대단해! 최고야!',
       tryAgain: '다시 해볼까?',
       learn: '을 배워볼까?',

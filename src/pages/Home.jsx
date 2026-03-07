@@ -68,8 +68,12 @@ export default function HomePage() {
         <BigButton
           onClick={() => navigate(hasProfile ? '/world' : '/select')}
           color="#4CAF50"
+          style={{
+            background: 'linear-gradient(180deg, #5cc75c 0%, #41a847 100%)',
+            boxShadow: '0 6px 14px rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.3)',
+          }}
         >
-          🎮 시작하기!
+          <img src="/images/ui/start.png" alt="start" className="w-6 h-6 object-contain mr-2" /> 시작하기!
         </BigButton>
       </motion.div>
 
