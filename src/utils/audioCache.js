@@ -1,14 +1,31 @@
 // =====================================================
-// 🔊 audioCache.js - 오디오 파일을 미리 불러와서 빠르게 재생해요!
-// fetch → Blob URL + 동시성 제한 큐 + 오디오 잠금 해제
+// audioCache.js - Web Audio API 기반 오디오 캐시
+// fetch → decodeAudioData (프리로드 시 디코딩 완료) → 클릭 즉시 재생
+// AudioBuffer는 개수 제한 없음 (HTML Audio의 ~16개 제한 없음)
 // =====================================================
 
-// ─── 캐시 저장소 ───
-const blobCache = new Map()   // src → blobUrl
-const audioPool = new Map()   // src → Audio element
-const pendingMap = new Map()  // src → Promise (진행 중인 fetch)
+// --- 캐시 저장소 ---
+const bufferCache = new Map()  // src → AudioBuffer (디코딩 완료)
+const pendingMap = new Map()   // src → Promise (진행 중인 fetch)
 
-// ─── 동시 fetch 큐 ───
+// --- AudioContext ---
+let audioCtx = null
+let unlocked = false
+let currentSource = null
+
+function getContext() {
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+    } catch (e) {}
+  }
+  return audioCtx
+}
+
+// 모듈 로드 시 AudioContext 미리 생성 (suspended 상태지만 디코딩은 가능)
+getContext()
+
+// --- 동시 fetch 큐 ---
 const MAX_CONCURRENT = 4
 let activeCount = 0
 const queue = []
@@ -26,21 +43,18 @@ function processQueue() {
 }
 
 function doFetch(src) {
+  const ctx = getContext()
   return fetch(src)
     .then(res => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      return res.blob()
+      return res.arrayBuffer()
     })
-    .then(blob => {
-      const blobUrl = URL.createObjectURL(blob)
-      blobCache.set(src, blobUrl)
-      // 유저 제스처 이후에만 Audio 엘리먼트를 미리 생성+디코딩
-      // 제스처 전에 생성하면 모바일에서 영구 차단됨
-      if (unlocked) {
-        const audio = new Audio(blobUrl)
-        audio.load()
-        audioPool.set(src, audio)
-      }
+    .then(arrayBuf => {
+      if (!ctx) return
+      return ctx.decodeAudioData(arrayBuf)
+    })
+    .then(audioBuffer => {
+      if (audioBuffer) bufferCache.set(src, audioBuffer)
     })
     .catch(() => {})
     .finally(() => {
@@ -48,46 +62,18 @@ function doFetch(src) {
     })
 }
 
-// ─── 모바일 오디오 잠금 해제 ───
-// 모바일 브라우저는 첫 번째 audio.play()가 유저 제스처 안에서 호출되어야 해요.
-// 앱 최초 터치/클릭 시 무음을 재생해서 오디오 컨텍스트를 열어놔요.
-let unlocked = false
-
+// --- 모바일 오디오 잠금 해제 ---
 export function unlockAudio() {
   if (unlocked) return
   unlocked = true
 
-  // 1) Web Audio API 잠금 해제
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)()
-    const buf = ctx.createBuffer(1, 1, 22050)
-    const source = ctx.createBufferSource()
-    source.buffer = buf
-    source.connect(ctx.destination)
-    source.start(0)
+  const ctx = getContext()
+  if (ctx && ctx.state === 'suspended') {
     ctx.resume()
-  } catch (e) {}
-
-  // 2) HTML Audio 잠금 해제 (무음 WAV 데이터)
-  try {
-    const silence = new Audio(
-      'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='
-    )
-    silence.volume = 0
-    silence.play().catch(() => {})
-  } catch (e) {}
-
-  // 3) 이미 캐시된 Blob URL들로 Audio 엘리먼트를 미리 생성+디코딩
-  for (const [src, blobUrl] of blobCache) {
-    if (!audioPool.has(src)) {
-      const audio = new Audio(blobUrl)
-      audio.load()
-      audioPool.set(src, audio)
-    }
   }
 }
 
-// 앱 시작 시 자동으로 첫 터치/클릭에 잠금 해제 등록
+// 앱 시작 시 첫 터치/클릭에 잠금 해제
 if (typeof document !== 'undefined') {
   const handler = () => {
     unlockAudio()
@@ -98,11 +84,11 @@ if (typeof document !== 'undefined') {
   document.addEventListener('click', handler, { capture: true, passive: true })
 }
 
-// ─── 프리로드 함수들 ───
+// --- 프리로드 함수들 ---
 
 export function preloadAudio(src, priority = false) {
   if (!src) return Promise.resolve()
-  if (blobCache.has(src)) return Promise.resolve()
+  if (bufferCache.has(src)) return Promise.resolve()
   if (pendingMap.has(src)) return pendingMap.get(src)
 
   const promise = new Promise((resolve) => {
@@ -127,25 +113,27 @@ export function preloadAudioList(srcs) {
   srcs.filter(Boolean).forEach(src => preloadAudio(src, false))
 }
 
-export function getCachedAudio(src) {
-  return audioPool.get(src) || null
+// --- 현재 재생 중지 ---
+export function stopCurrentAudio() {
+  if (currentSource) {
+    try { currentSource.stop() } catch (e) {}
+    currentSource = null
+  }
 }
 
-// ─── 재생 함수 ───
+// --- 재생 함수 ---
 
 export function playAudio(src, onStart, onEnd, onError) {
   if (!src) return Promise.resolve()
 
-  // ★ 핵심: Blob URL이 준비되어 있으면 동기적으로 즉시 재생 (유저 제스처 유지)
-  const blobUrl = blobCache.get(src)
-  if (blobUrl) {
-    return playSrc(blobUrl, src, onStart, onEnd, onError)
+  const buffer = bufferCache.get(src)
+  if (buffer) {
+    return playBuffer(buffer, onStart, onEnd, onError)
   }
 
-  // Blob URL이 아직 없으면 → 진행 중인 fetch를 기다리거나 즉시 fetch
+  // 아직 디코딩 안 됐으면 기다린 후 재생
   return (async () => {
     if (pendingMap.has(src)) {
-      // 큐에서 이 파일을 맨 앞으로 올림
       const idx = queue.findIndex(j => j.src === src)
       if (idx > 0) {
         const [job] = queue.splice(idx, 1)
@@ -156,48 +144,47 @@ export function playAudio(src, onStart, onEnd, onError) {
       await preloadAudio(src, true)
     }
 
-    const readyUrl = blobCache.get(src) || src
-    return playSrc(readyUrl, src, onStart, onEnd, onError)
+    const buf = bufferCache.get(src)
+    if (buf) return playBuffer(buf, onStart, onEnd, onError)
+    if (onError) onError()
   })()
 }
 
-// 실제 Audio.play() 로직 (동기 경로에서 호출 가능)
-function playSrc(url, originalSrc, onStart, onEnd, onError) {
+function playBuffer(buffer, onStart, onEnd, onError) {
   return new Promise((resolve) => {
-    // audioPool에서 재사용 또는 새로 생성
-    let audio = audioPool.get(originalSrc)
-    if (audio) {
-      audio.currentTime = 0
-    } else {
-      audio = new Audio(url)
-      audioPool.set(originalSrc, audio)
+    const ctx = getContext()
+    if (!ctx) {
+      if (onError) onError()
+      resolve()
+      return
     }
 
-    const cleanup = () => {
-      audio.removeEventListener('ended', handleEnded)
-      audio.removeEventListener('error', handleErr)
-    }
-    const handleEnded = () => {
-      cleanup()
+    // 이전 재생 중지
+    stopCurrentAudio()
+
+    const source = ctx.createBufferSource()
+    source.buffer = buffer
+    source.connect(ctx.destination)
+    currentSource = source
+
+    source.onended = () => {
+      if (currentSource === source) currentSource = null
       if (onEnd) onEnd()
       resolve()
     }
-    const handleErr = () => {
-      cleanup()
-      console.warn('Audio play failed:', originalSrc)
-      if (onError) onError()
-      resolve()
-    }
-
-    audio.addEventListener('ended', handleEnded)
-    audio.addEventListener('error', handleErr)
 
     if (onStart) onStart()
 
-    audio.play().catch(() => {
-      cleanup()
+    try {
+      source.start(0)
+    } catch (e) {
       if (onError) onError()
       resolve()
-    })
+    }
   })
+}
+
+// 하위 호환 (사용하는 곳 없으면 무시)
+export function getCachedAudio() {
+  return null
 }
