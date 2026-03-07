@@ -16,6 +16,11 @@ body {
   overflow-x: hidden;
   -webkit-user-select: none;
   user-select: none;
+  /* iOS PWA: 노치/홈 인디케이터 안전 영역 자동 확보 */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 #root {
