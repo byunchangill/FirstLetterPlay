@@ -49,15 +49,15 @@ export default function SelectPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-[100dvh] flex flex-col items-center px-4 py-8 bg-gradient-to-b from-purple-100 to-blue-50"
+      className="min-h-[100dvh] flex flex-col items-center px-4 py-8 bg-[#F3EEFA]"
     >
-      {/* "친구를 골라줘!" 제목 (위에서 내려오는 애니메이션) */}
+      {/* "함께할 친구를 골라봐!" 제목 (위에서 내려오는 애니메이션) */}
       <motion.h1
         initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="font-jua text-[2.5rem] md:text-5xl text-purple-800 mb-8"
+        className="font-jua text-[2.5rem] md:text-5xl text-[#1F2A44] mb-8"
       >
-        친구를 골라줘!
+        함께할 친구를 골라봐!
       </motion.h1>
 
       {/* 메인 콘텐츠 - 태블릿/PC에서 수직 중앙 배치 */}

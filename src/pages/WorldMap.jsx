@@ -90,7 +90,8 @@ export default function WorldMapPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen px-4 py-6 bg-gradient-to-b from-blue-100 to-green-50 flex flex-col"
+      className="min-h-screen px-4 py-6 flex flex-col"
+      style={{ background: 'linear-gradient(180deg, #EDF4F8 0%, #F7FBFC 100%)' }}
     >
       {/* 상단 헤더: 뒤로 가기 + 내 캐릭터/레벨 표시 */}
       <div className="flex items-center justify-between mb-6">
@@ -98,18 +99,23 @@ export default function WorldMapPage() {
         {/* 내 캐릭터를 누르면 캐릭터 선택 화면으로 가요 */}
         <button
           onClick={() => navigate('/select')}
-          className="flex items-center gap-2 hover:bg-white/50 p-2 rounded-xl transition-colors cursor-pointer"
+          className="flex items-center gap-2 p-2 rounded-xl transition-colors cursor-pointer"
+          style={{
+            background: 'var(--badge-bg)',
+            border: '1.5px solid var(--badge-border)',
+            borderRadius: '14px',
+          }}
         >
           {/* 현재 레벨에 맞는 캐릭터 이미지 */}
           <img src={getCharacterLevel(character, growth?.level).image} alt={character.name} className="w-10 h-10 object-contain drop-shadow-sm" />
-          <span className="font-jua text-lg">Lv.{growth?.level || 1}</span>
+          <span className="font-jua text-lg" style={{ color: 'var(--text-title)' }}>Lv.{growth?.level || 1}</span>
         </button>
       </div>
 
       {/* 월드 카드 영역 - 태블릿/PC에서 수직 중앙 배치 (md: 768px 이상) */}
       <div className="flex-1 flex items-start md:items-center">
       <div className="w-full">
-      <h1 className="font-jua text-3xl md:text-4xl text-center text-gray-800 mb-6 drop-shadow-sm">
+      <h1 className="font-jua text-3xl md:text-4xl text-center text-[#1F2A44] mb-6 drop-shadow-sm">
         어디로 갈까?
       </h1>
 
@@ -145,8 +151,8 @@ export default function WorldMapPage() {
               className="p-5 rounded-[28px] text-left cursor-pointer relative overflow-hidden group"
               style={{
                 backgroundColor: world.bgColor,
-                border: '2px solid var(--border-warm)',
-                boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(80,80,80,0.07), 0 10px 22px rgba(80,80,80,0.05)',
+                border: '2px solid var(--card-border)',
+                boxShadow: 'var(--card-shadow)',
               }}
             >
               {/* 마우스를 올리면 흰색 빛이 사라지는 효과 */}
@@ -159,13 +165,16 @@ export default function WorldMapPage() {
                   <span className="text-4xl">{world.icon}</span>
                 )}
                 <div>
-                  <h2 className="font-jua text-2xl text-gray-800">{world.name}</h2>
-                  <p className="font-gaegu text-lg text-gray-600 leading-tight">{world.description}</p>
+                  <h2 className="font-jua text-2xl" style={{ color: 'var(--text-title)' }}>{world.name}</h2>
+                  <p className="font-pretendard text-base leading-tight" style={{ color: 'var(--text-body)' }}>{world.description}</p>
                 </div>
               </div>
               {/* 별 개수와 클리어 개수, 진행 막대 */}
               <div className="relative z-10 space-y-2">
-                <div className="flex justify-between text-sm text-gray-700 bg-white/60 px-2 py-0.5 rounded backdrop-blur-sm font-bold">
+                <div
+                  className="flex justify-between text-sm px-2 py-1 rounded-lg font-pretendard font-semibold"
+                  style={{ background: 'var(--card-inner)', color: 'var(--text-meta)' }}
+                >
                   <span className="flex items-center gap-1"><img src="/images/ui/star-filled.png" className="w-4 h-4" /> {stats.totalStars}/{stats.maxStars}</span>
                   <span>{stats.clearedStages}/{stats.totalStages} 완료</span>
                 </div>
@@ -189,6 +198,96 @@ export default function WorldMapPage() {
 }
 
 // =====================================================
+// 나라별 타일 색상 정보예요
+// 각 나라마다 타일 배경/테두리/호버/잠금 색이 달라요
+// index.css의 --world-* CSS 변수로 그리드에 주입돼요
+// =====================================================
+// =====================================================
+// 나라별 타일 색상 전체 세트예요
+// 기본(locked/tile) + 인터랙션(hover/selected/completed/new) 모두 포함해요
+// 이 값들은 그리드 wrapper의 --world-* CSS 변수로 자식 타일에 전달돼요
+// =====================================================
+const WORLD_TILE_COLORS = {
+  consonants: {
+    // 기본 상태
+    tile:       '#FFFDF9',   // 잠금해제 기본 배경
+    locked:     '#F1F3EF',   // 잠긴 타일 배경
+    lockedText: '#B8BDB5',   // 잠긴 타일 글자색
+    // Hover (마우스 올림 - 살짝 강조)
+    hoverBg:     '#F6FBF4',
+    hoverBorder: '#36A63A',
+    hoverShadow: 'rgba(69, 182, 73, 0.14)',
+    // Selected (누르는 중 - 가장 강한 강조)
+    selectedBg:     '#ECF9E7',
+    selectedBorder: '#2F9E38',
+    selectedRing:   '#BEE7B7',
+    selectedShadow: 'rgba(69, 182, 73, 0.20)',
+    // Completed (이미 플레이함 - 안정적 강조)
+    completedBg:     '#F3FBF1',
+    completedBorder: '#78C97A',
+    // New / Just Unlocked (아직 안 해봄 - 반짝임)
+    unlockBg:     '#F7FDF5',
+    unlockBorder: '#57C95D',
+    unlockRing:   '#D7F2D2',
+    unlockShadow: 'rgba(87, 201, 93, 0.22)',
+  },
+  vowels: {
+    tile:       '#FFFDF9',
+    locked:     '#EEF1F4',
+    lockedText: '#B6BEC8',
+    hoverBg:     '#F5FAFE',
+    hoverBorder: '#1F7DDA',
+    hoverShadow: 'rgba(45, 142, 234, 0.14)',
+    selectedBg:     '#EAF5FF',
+    selectedBorder: '#1D78D8',
+    selectedRing:   '#B8DCFF',
+    selectedShadow: 'rgba(45, 142, 234, 0.20)',
+    completedBg:     '#F1F8FE',
+    completedBorder: '#75B6F2',
+    unlockBg:     '#F6FBFF',
+    unlockBorder: '#4C9EF0',
+    unlockRing:   '#D8ECFA',
+    unlockShadow: 'rgba(76, 158, 240, 0.22)',
+  },
+  numbers: {
+    tile:       '#FFFDF9',
+    locked:     '#F3F0E7',
+    lockedText: '#BDB7AC',
+    hoverBg:     '#FFF9ED',
+    hoverBorder: '#E18E08',
+    hoverShadow: 'rgba(245, 158, 11, 0.15)',
+    selectedBg:     '#FFF6DB',
+    selectedBorder: '#D98900',
+    selectedRing:   '#F7D98A',
+    selectedShadow: 'rgba(245, 158, 11, 0.22)',
+    completedBg:     '#FFFAF0',
+    completedBorder: '#F2B64A',
+    unlockBg:     '#FFFBF2',
+    unlockBorder: '#F2AA22',
+    unlockRing:   '#F9E5AE',
+    unlockShadow: 'rgba(242, 170, 34, 0.24)',
+  },
+  alphabet: {
+    tile:       '#FFFDF9',
+    locked:     '#F3EEE8',
+    lockedText: '#BDB5AE',
+    hoverBg:     '#FFF5EF',
+    hoverBorder: '#F45A20',
+    hoverShadow: 'rgba(255, 107, 53, 0.15)',
+    selectedBg:     '#FFF0E8',
+    selectedBorder: '#E85A24',
+    selectedRing:   '#FFC9B5',
+    selectedShadow: 'rgba(255, 107, 53, 0.22)',
+    completedBg:     '#FFF7F2',
+    completedBorder: '#F49A78',
+    unlockBg:     '#FFF8F3',
+    unlockBorder: '#FF7A4A',
+    unlockRing:   '#FFD8C9',
+    unlockShadow: 'rgba(255, 122, 74, 0.24)',
+  },
+}
+
+// =====================================================
 // StageListView - 특정 월드의 스테이지 목록을 보여줘요
 // 예: 자음 월드를 누르면 ㄱ, ㄴ, ㄷ... 버튼이 쭉 나와요
 // 잠긴 스테이지는 자물쇠 🔒가 보이고, 클리어한 건 별이 표시돼요
@@ -199,6 +298,10 @@ function StageListView({ world, initialTab, character, growth, getStageStars, is
   const isTabbed = world.hasTabs  // 탭이 있는 월드인지 여부
   const currentWorldId = activeTab ? `${world.id}_${activeTab}` : world.id
   const currentWorld = activeTab ? getWorldById(currentWorldId) : world  // 현재 보여줄 월드 정보
+
+  // 이 나라의 타일 색상 정보를 가져와요
+  // world.id가 consonants / vowels / numbers / alphabet 중 하나예요
+  const tileColors = WORLD_TILE_COLORS[world.id] || WORLD_TILE_COLORS.consonants
 
   // 스테이지 목록이 보이는 동안 이 월드의 모든 오디오를 미리 받아놔요
   // → 스테이지 진입 시 이미 로딩 완료 상태!
@@ -256,7 +359,36 @@ function StageListView({ world, initialTab, character, growth, getStageStars, is
 
       {/* 글자 버튼들 - 태블릿/PC에서 수직 중앙 배치 (md: 768px 이상) */}
       <div className="flex-1 flex items-start md:items-center">
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 max-w-lg md:max-w-2xl mx-auto w-full">
+      {/*
+        그리드 wrapper에 나라별 타일 CSS 변수를 설정해요.
+        자식 버튼들은 var(--world-tile-bg) 등으로 이 값을 읽어요.
+      */}
+      <div
+        className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 max-w-lg md:max-w-2xl mx-auto w-full"
+        style={{
+          /* 기본 상태 */
+          '--world-tile-bg':    tileColors.tile,
+          '--world-locked-bg':  tileColors.locked,
+          '--world-locked-text': tileColors.lockedText,
+          /* Hover 상태 */
+          '--world-hover-bg':     tileColors.hoverBg,
+          '--world-hover-border': tileColors.hoverBorder,
+          '--world-hover-shadow': tileColors.hoverShadow,
+          /* Selected (Active) 상태 */
+          '--world-selected-bg':     tileColors.selectedBg,
+          '--world-selected-border': tileColors.selectedBorder,
+          '--world-selected-ring':   tileColors.selectedRing,
+          '--world-selected-shadow': tileColors.selectedShadow,
+          /* Completed 상태 */
+          '--world-completed-bg':     tileColors.completedBg,
+          '--world-completed-border': tileColors.completedBorder,
+          /* New (Just Unlocked) 상태 */
+          '--world-unlock-bg':     tileColors.unlockBg,
+          '--world-unlock-border': tileColors.unlockBorder,
+          '--world-unlock-ring':   tileColors.unlockRing,
+          '--world-unlock-shadow': tileColors.unlockShadow,
+        }}
+      >
         {currentWorld.items.map((item, index) => {
           const stars = getStageStars(currentWorld.id, index)  // 이 스테이지에서 딴 별 정보
           const easyUnlocked = isStageUnlocked(currentWorld.id, index, 'easy')  // 잠금 해제됐는지
@@ -271,25 +403,25 @@ function StageListView({ world, initialTab, character, growth, getStageStars, is
               whileTap={easyUnlocked ? { scale: 0.9 } : {}}
               // 잠금 해제된 스테이지만 눌러서 이동할 수 있어요
               onClick={() => easyUnlocked && navigate(`/stage/${currentWorld.id}/${index}`)}
-              className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-[24px] cursor-pointer ${easyUnlocked
-                ? ''
-                : 'opacity-60 cursor-not-allowed'
-                }`}
-              style={{
-                background: easyUnlocked ? 'var(--surface)' : '#e8e4df',
-                border: easyUnlocked && stars.total > 0 ? `3px solid ${currentWorld.color}` : '2px solid var(--border-warm)',
-                boxShadow: easyUnlocked
-                  ? 'inset 0 2px 0 rgba(255,255,255,0.8), 0 3px 8px rgba(80,80,80,0.07)'
-                  : 'none',
-              }}
+              className={`stage-tile relative flex flex-col items-center justify-center w-full aspect-square rounded-[24px] ${
+                !easyUnlocked
+                  // 잠긴 타일: 어두운 배경, 클릭 불가
+                  ? 'stage-tile--locked cursor-not-allowed'
+                  : stars.total > 0
+                    // 완료 타일: 안정적인 색채움 + 나라 색 테두리
+                    ? 'stage-tile--unlocked stage-tile--completed cursor-pointer'
+                    // 새 타일 (아직 안 해봄): 살짝 반짝이는 링 효과
+                    : 'stage-tile--unlocked stage-tile--new cursor-pointer'
+              }`}
+              // border/boxShadow는 CSS 클래스(stage-tile--*)가 담당해요
+              // → 인라인 스타일 없이도 :hover, :active CSS가 동작해요
             >
               {/* 잠긴 스테이지에는 자물쇠 그림이 나와요 */}
               {!easyUnlocked && (
-                <img src="/images/ui/lock.png" alt="locked" className="w-8 h-8 object-contain mb-1 opacity-80" />
+                <img src="/images/ui/lock.png" alt="locked" className="w-8 h-8 object-contain mb-1" style={{ opacity: 0.7 }} />
               )}
-              {/* 글자 (예: ㄱ, a, 1) */}
-              <span className={`font-jua text-3xl md:text-4xl lg:text-5xl ${easyUnlocked ? 'text-gray-800' : 'text-gray-400'
-                }`}>
+              {/* 글자 (예: ㄱ, a, 1) - tile-label 클래스로 CSS가 색상을 제어해요 */}
+              <span className="tile-label font-jua text-3xl md:text-4xl lg:text-5xl">
                 {label}
               </span>
               {/* 클리어한 스테이지에는 별 3개가 보여요 (색 별 = 달성, 빈 별 = 미달성) */}

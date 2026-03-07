@@ -14,8 +14,8 @@ export const worlds = [
     id: 'consonants',
     name: '자음 나라',
     icon: '🏔️',
-    color: '#4CAF50',
-    bgColor: '#C8E6C9',
+    color: '#45B649',
+    bgColor: '#EEF6EE',  // 자음 나라 배경색 (연한 민트 그린)
     description: '자음을 찾아 떠나요!',
     items: consonants,  // 자음 리스트
     audioPath: '/audio/consonants/',  // (레거시) 소리 파일 위치
@@ -32,8 +32,8 @@ export const worlds = [
     id: 'vowels',
     name: '모음 나라',
     icon: '🌊',
-    color: '#2196F3',
-    bgColor: '#B3E5FC',
+    color: '#2D8EEA',
+    bgColor: '#EEF6FC',  // 모음 나라 배경색 (연한 하늘색)
     description: '모음을 찾아 떠나요!',
     items: vowels,
     audioPath: '/audio/vowels/',
@@ -50,8 +50,8 @@ export const worlds = [
     id: 'numbers',
     name: '숫자 나라',
     icon: '🌟',
-    color: '#FF9800',
-    bgColor: '#FFF9C4',
+    color: '#F59E0B',
+    bgColor: '#FBF6DE',
     description: '숫자를 찾아 떠나요!',
     items: numbers,
     audioPath: '/audio/numbers/',
@@ -59,8 +59,8 @@ export const worlds = [
     bgImage: '/images/worlds/number-bg.png',
     hasTabs: true,
     tabs: [
-      { id: 'kr', name: '한글', color: '#FF9800' },
-      { id: 'en', name: '영어', color: '#4CAF50' }
+      { id: 'kr', name: '한글', color: '#F59E0B' },
+      { id: 'en', name: '영어', color: '#45B649' }
     ],
     // 기본 숫자 오디오 (한글 기준)
     getSpelAudioUrl: (item, charId) => `/audio/numbers/${charId}/spelkr/${item.audioKr || item.audio}`,
@@ -70,8 +70,8 @@ export const worlds = [
     id: 'alphabet',
     name: '알파벳 나라',
     icon: '🚀',
-    color: '#FF5722',
-    bgColor: '#FFE0B2',
+    color: '#FF6B35',
+    bgColor: '#FBEBDD',
     description: '알파벳을 찾아 떠나요!',
     items: alphabet,
     audioPath: '/audio/alphabet/',
@@ -79,8 +79,8 @@ export const worlds = [
     bgImage: '/images/worlds/alphabet-bg.png',
     hasTabs: true,
     tabs: [
-      { id: 'upper', name: '대문자', color: '#FF5722' },
-      { id: 'lower', name: '소문자', color: '#FF9800' }
+      { id: 'upper', name: '대문자', color: '#FF6B35' },
+      { id: 'lower', name: '소문자', color: '#F59E0B' }
     ],
     // 캐릭터별 오디오 경로 함수들
     getSpelAudioUrl: (item, charId) => `/audio/alphabet/${charId}/spel/${item.audio}`,

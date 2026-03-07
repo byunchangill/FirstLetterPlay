@@ -19,6 +19,7 @@ export default {
         sans: ['"Gowun Dodum"', 'sans-serif'],
         jua: ['"Jua"', 'sans-serif'],
         gaegu: ['"Gaegu"', 'sans-serif'],
+        pretendard: ['"Pretendard"', 'sans-serif'],  // 설명/통계 텍스트용
       },
       screens: {
         'sm': '375px',

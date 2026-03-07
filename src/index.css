@@ -145,4 +145,233 @@ body {
   --shadow-btn:
     inset 0 2px 0 rgba(255,255,255,0.3),
     0 5px 12px rgba(0,0,0,0.12);
+
+  /* ====== 월드맵 디자인 토큰 ====== */
+  /* 텍스트 */
+  --text-title:  #1F2A44;  /* 제목: 진한 네이비 */
+  --text-body:   #4E5B6B;  /* 설명문 */
+  --text-meta:   #5C6778;  /* 완료/통계 보조 텍스트 */
+
+  /* 카드 공통 */
+  --card-border:   #E8E1D6;                        /* 카드 테두리 */
+  --card-shadow:   0 10px 24px rgba(31,42,68,0.08); /* 카드 그림자 */
+  --card-inner:    #FFFDF9;                         /* 통계 영역 배경 */
+
+  /* 카드별 배경색 */
+  --card-consonant: #DDEEDB;
+  --card-vowel:     #D8ECFA;
+  --card-number:    #FBF6DE;
+  --card-alphabet:  #FBEBDD;
+
+  /* 진행바 채워진 색 */
+  --progress-consonant: #45B649;
+  --progress-vowel:     #2D8EEA;
+  --progress-number:    #F59E0B;
+  --progress-alphabet:  #FF6B35;
+
+  /* 진행바 트랙(빈 부분) */
+  --progress-track: #DDD7CC;
+
+  /* 레벨 배지 */
+  --badge-bg:     rgba(255, 255, 255, 0.72);
+  --badge-border: #DDE5EA;
+
+  /* ====== 스테이지 타일 나라별 컬러 ====== */
+  /* 각 나라에서 글자 버튼(타일)에 쓰는 색이에요 */
+
+  /* 자음 나라 🌿 */
+  --tile-consonants:        #FFFDF9;   /* 타일 기본 배경 */
+  --border-consonants:      #45B649;   /* 클리어 타일 테두리 (초록) */
+  --hover-consonants:       #F6FBF4;   /* 마우스 올렸을 때 배경 */
+  --locked-consonants:      #F1F3EF;   /* 잠긴 타일 배경 */
+  --locked-text-consonants: #B8BDB5;   /* 잠긴 타일 글자색 */
+
+  /* 모음 나라 💧 */
+  --tile-vowels:            #FFFDF9;
+  --border-vowels:          #2D8EEA;   /* 하늘색 테두리 */
+  --hover-vowels:           #F5FAFE;
+  --locked-vowels:          #EEF1F4;
+  --locked-text-vowels:     #B6BEC8;
+
+  /* 숫자 나라 ⭐ */
+  --tile-numbers:           #FFFDF9;
+  --border-numbers:         #F59E0B;   /* 노란 테두리 */
+  --hover-numbers:          #FFF9ED;
+  --locked-numbers:         #F3F0E7;
+  --locked-text-numbers:    #BDB7AC;
+
+  /* 알파벳 나라 🚀 */
+  --tile-alphabet:          #FFFDF9;
+  --border-alphabet:        #FF6B35;   /* 주황 테두리 */
+  --hover-alphabet:         #FFF5EF;
+  --locked-alphabet:        #F3EEE8;
+  --locked-text-alphabet:   #BDB5AE;
+
+  /* 공통 텍스트/아이콘 색 */
+  --text-primary:   #1F2A44;   /* 기본 진한 글자색 */
+  --text-secondary: #4E5B6B;   /* 보조 글자색 */
+  --star-yellow:    #F4D56A;   /* 별 색 */
+  --lock-icon:      #B9BEC7;   /* 자물쇠 아이콘 색 */
+
+  /* ====== 인터랙션 상태 컬러 ====== */
+  /* hover/selected/completed/just-unlocked 각 상태의 나라별 색이에요 */
+  /* 이 변수들은 WorldMap.jsx에서 --world-* 이름으로 타일 부모에 주입돼요 */
+
+  /* 자음 나라 인터랙션 */
+  --hover-border-consonants:      #36A63A;
+  --hover-shadow-consonants:      rgba(69, 182, 73, 0.14);
+  --selected-bg-consonants:       #ECF9E7;
+  --selected-border-consonants:   #2F9E38;
+  --selected-ring-consonants:     #BEE7B7;
+  --selected-shadow-consonants:   rgba(69, 182, 73, 0.20);
+  --completed-bg-consonants:      #F3FBF1;
+  --completed-border-consonants:  #78C97A;
+  --unlock-bg-consonants:         #F7FDF5;
+  --unlock-border-consonants:     #57C95D;
+  --unlock-ring-consonants:       #D7F2D2;
+  --unlock-shadow-consonants:     rgba(87, 201, 93, 0.22);
+
+  /* 모음 나라 인터랙션 */
+  --hover-border-vowels:          #1F7DDA;
+  --hover-shadow-vowels:          rgba(45, 142, 234, 0.14);
+  --selected-bg-vowels:           #EAF5FF;
+  --selected-border-vowels:       #1D78D8;
+  --selected-ring-vowels:         #B8DCFF;
+  --selected-shadow-vowels:       rgba(45, 142, 234, 0.20);
+  --completed-bg-vowels:          #F1F8FE;
+  --completed-border-vowels:      #75B6F2;
+  --unlock-bg-vowels:             #F6FBFF;
+  --unlock-border-vowels:         #4C9EF0;
+  --unlock-ring-vowels:           #D8ECFA;
+  --unlock-shadow-vowels:         rgba(76, 158, 240, 0.22);
+
+  /* 숫자 나라 인터랙션 */
+  --hover-border-numbers:         #E18E08;
+  --hover-shadow-numbers:         rgba(245, 158, 11, 0.15);
+  --selected-bg-numbers:          #FFF6DB;
+  --selected-border-numbers:      #D98900;
+  --selected-ring-numbers:        #F7D98A;
+  --selected-shadow-numbers:      rgba(245, 158, 11, 0.22);
+  --completed-bg-numbers:         #FFFAF0;
+  --completed-border-numbers:     #F2B64A;
+  --unlock-bg-numbers:            #FFFBF2;
+  --unlock-border-numbers:        #F2AA22;
+  --unlock-ring-numbers:          #F9E5AE;
+  --unlock-shadow-numbers:        rgba(242, 170, 34, 0.24);
+
+  /* 알파벳 나라 인터랙션 */
+  --hover-border-alphabet:        #F45A20;
+  --hover-shadow-alphabet:        rgba(255, 107, 53, 0.15);
+  --selected-bg-alphabet:         #FFF0E8;
+  --selected-border-alphabet:     #E85A24;
+  --selected-ring-alphabet:       #FFC9B5;
+  --selected-shadow-alphabet:     rgba(255, 107, 53, 0.22);
+  --completed-bg-alphabet:        #FFF7F2;
+  --completed-border-alphabet:    #F49A78;
+  --unlock-bg-alphabet:           #FFF8F3;
+  --unlock-border-alphabet:       #FF7A4A;
+  --unlock-ring-alphabet:         #FFD8C9;
+  --unlock-shadow-alphabet:       rgba(255, 122, 74, 0.24);
+}
+
+/* ====== 스테이지 타일 (글자 선택 버튼) ====== */
+/* StageListView에서 ㄱ, ㄴ, 1, A 같은 글자를 고르는 버튼이에요 */
+/* 모든 색은 부모 div에 설정된 --world-* CSS 변수를 읽어와요 */
+/* 상태별 역할:
+   locked    → 아직 잠김 (접근 불가)
+   unlocked  → 잠금 해제된 기본 상태
+   completed → 이미 플레이한 적 있음 (안정적 강조)
+   new       → 방금 열린 타일 (아직 안 해봄, 살짝 반짝임)
+   :hover    → 마우스 올림 (한 단계 강조)
+   :active   → 누르는 중 (가장 강한 강조 = selected)
+*/
+
+/* 기본 - 모든 타일 공통 (전환 효과를 부드럽게 해요) */
+.stage-tile {
+  transition:
+    background    0.15s ease,
+    border-color  0.15s ease,
+    box-shadow    0.20s ease;
+}
+
+/* ── 잠긴 타일 ── */
+.stage-tile--locked {
+  background: var(--world-locked-bg, #e8e4df);
+  border: 2px solid var(--border-warm);
+  box-shadow: none;
+}
+.stage-tile--locked .tile-label {
+  color: var(--world-locked-text, #aaa) !important;
+}
+
+/* ── 잠금 해제 타일 (기본) ── */
+.stage-tile--unlocked {
+  background: var(--world-tile-bg, #FFFDF9);
+  border: 2px solid var(--border-warm);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.8),
+    0 3px 8px rgba(80,80,80,0.07);
+}
+.stage-tile--unlocked .tile-label {
+  color: var(--text-primary, #1F2A44) !important;
+}
+
+/* ── Hover: 마우스 올렸을 때 ─ 살짝 진하게 ── */
+/* .stage-tile--unlocked:hover은 completed/new 타일에도 적용돼요
+   (두 클래스 모두 --unlocked를 같이 가지고 있어서) */
+.stage-tile--unlocked:hover {
+  background:   var(--world-hover-bg);
+  border-color: var(--world-hover-border);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.8),
+    0 4px 12px var(--world-hover-shadow, rgba(0,0,0,0.12));
+}
+
+/* ── Active/Selected: 누르는 순간 ─ 가장 또렷한 강조 ── */
+.stage-tile--unlocked:active {
+  background:   var(--world-selected-bg);
+  border-color: var(--world-selected-border);
+  outline:        3px solid var(--world-selected-ring);
+  outline-offset: 2px;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.8),
+    0 4px 16px var(--world-selected-shadow, rgba(0,0,0,0.18));
+}
+
+/* ── Completed: 이미 클리어한 타일 ─ 안정적이고 기분 좋은 강조 ── */
+/* .stage-tile--unlocked보다 나중에 선언돼서 배경/테두리를 덮어써요 */
+.stage-tile--completed {
+  background: var(--world-completed-bg, var(--world-tile-bg));
+  border: 3px solid var(--world-completed-border);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.8),
+    0 3px 8px rgba(80,80,80,0.07);
+}
+
+/* ── New: 방금 잠금해제 / 아직 안 해본 타일 ─ 살짝 반짝임 ── */
+/* .stage-tile--unlocked보다 나중에 선언돼서 덮어써요 */
+.stage-tile--new {
+  background: var(--world-unlock-bg, var(--world-tile-bg));
+  border: 2px solid var(--world-unlock-border);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.8),
+    0 0 0 3px var(--world-unlock-ring),   /* 바깥 반짝 링 */
+    0 3px 10px var(--world-unlock-shadow, rgba(0,0,0,0.10));
+  animation: tile-new-glow 2s ease-in-out infinite;
+}
+
+/* New 타일 반짝임 애니메이션 (링이 커졌다 작아져요) */
+@keyframes tile-new-glow {
+  0%, 100% {
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,0.8),
+      0 0 0 3px var(--world-unlock-ring),
+      0 3px 10px var(--world-unlock-shadow, rgba(0,0,0,0.10));
+  }
+  50% {
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,0.8),
+      0 0 0 5px var(--world-unlock-ring),   /* 링이 살짝 커져요 */
+      0 4px 16px var(--world-unlock-shadow, rgba(0,0,0,0.10));
+  }
 }
