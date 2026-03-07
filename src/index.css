@@ -27,6 +27,111 @@ body {
   min-height: 100dvh;
 }
 
+/* ====== 힌트 버튼 ====== */
+/* 메인 선택지보다 튀지 않으면서 눌러볼 수 있는 보조 액션 버튼이에요 */
+.hint-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-width: 230px;
+  height: 64px;
+  padding: 0 22px;
+
+  /* 카드보다 살짝 따뜻한 크림 그라데이션으로 존재감을 만들어요 */
+  background: linear-gradient(180deg, #fffdf8 0%, #f8f4eb 100%);
+  border: 2px dashed #cfc6b8;
+  border-radius: 999px;
+
+  /* 너무 밝지 않은 네이비 회색으로 비활성처럼 보이지 않게 해요 */
+  color: #5b6472;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+
+  box-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.95) inset,
+    0 4px 10px rgba(76, 88, 106, 0.08);
+
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+/* 호버: 살짝 위로 떠오르며 테두리가 진해져요 */
+.hint-button:hover {
+  background: linear-gradient(180deg, #fffefb 0%, #f6efe2 100%);
+  border-color: #bfb4a3;
+  color: #38465a;
+  box-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.95) inset,
+    0 8px 18px rgba(76, 88, 106, 0.12);
+  transform: translateY(-1px);
+}
+
+/* 클릭: 살짝 눌리는 느낌 */
+.hint-button:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.9) inset,
+    0 3px 8px rgba(76, 88, 106, 0.08);
+}
+
+/* 키보드 포커스: 민트색 링으로 강조해요 (접근성) */
+.hint-button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 4px rgba(139, 193, 169, 0.28),
+    0 2px 0 rgba(255, 255, 255, 0.95) inset,
+    0 8px 18px rgba(76, 88, 106, 0.12);
+}
+
+/* 비활성: 흐릿하게 보이고 클릭 불가 */
+.hint-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.85) inset,
+    0 2px 6px rgba(76, 88, 106, 0.05);
+}
+
+/* 힌트 버튼 안의 이모지/아이콘 크기 */
+.hint-button__icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* 텍스트를 살짝 내려서 시각적으로 중앙처럼 보이게 해요 */
+.hint-button__label {
+  display: inline-block;
+  transform: translateY(1px);
+}
+
+/* 모바일: 조금 작게 */
+@media (max-width: 768px) {
+  .hint-button {
+    min-width: 190px;
+    height: 56px;
+    padding: 0 18px;
+    gap: 8px;
+    font-size: 22px;
+  }
+
+  .hint-button__icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
 /* ====== 키즈 UI 글로벌 토큰 ====== */
 :root {
   --surface: #fffdf8;

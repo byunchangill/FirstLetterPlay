@@ -591,6 +591,27 @@ function WritingExercise({ item, world, character, label, onAnswer }) {
 function FillBlankExercise({ item, world, character, label, onAnswer }) {
   const [selected, setSelected] = useState(null)
   const [answered, setAnswered] = useState(false)
+  // 힌트 버튼을 눌렀을 때만 힌트를 보여줘요 (기본은 숨김)
+  const [showHint, setShowHint] = useState(false)
+  // 힌트 숨김 타이머를 저장해요 (컴포넌트가 사라져도 타이머가 실행되지 않도록 관리)
+  const hintTimerRef = useRef(null)
+
+  // 문제가 바뀌면 힌트를 다시 숨기고 타이머도 정리해요
+  useEffect(() => {
+    setShowHint(false)
+    return () => {
+      if (hintTimerRef.current) clearTimeout(hintTimerRef.current)
+    }
+  }, [item])
+
+  // 힌트 보기 버튼을 눌렀을 때: 힌트를 보여주고 3초 뒤에 자동으로 숨겨요
+  function handleShowHint() {
+    setShowHint(true)
+    if (hintTimerRef.current) clearTimeout(hintTimerRef.current)
+    hintTimerRef.current = setTimeout(() => {
+      setShowHint(false)
+    }, 1000)
+  }
 
   const rawWord = item.word || (world.id.endsWith('_en') ? item.english : item.korean) || ''
   const wordDisplay = world.id === 'alphabet_upper'
@@ -601,7 +622,21 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
   const isEnglish = world.id.endsWith('_en') || (item.upper !== undefined)
   const blankWord = wordDisplay ? (isEnglish ? `[  ]${wordDisplay.slice(1)}` : `[ ] ${wordDisplay.slice(1)}`) : `[ ] = ${label}`
 
-  // 스테이지별로 선택지에 보여줄 "정답 단어"를 결정해요
+  // ── 스테이지별 힌트 내용 결정 ──────────────────────────────
+  // - 자음: 해당 자음 글자 (예: 기린 → ㄱ)
+  // - 모음: 해당 모음 글자 (예: 아이스크림 → ㅏ)
+  // - 숫자(한글): 순우리말 읽기 (예: 1 → 하나, 2 → 둘)
+  // - 숫자(영어): 힌트 없음 (null이면 버튼 자체가 안 보여요)
+  // - 알파벳: 단어 전체 (예: APPLE, apple)
+  const hintContent = (() => {
+    if (world.id === 'consonants') return item.letter        // ㄱ, ㄴ, ㄷ...
+    if (world.id === 'vowels')     return item.letter        // ㅏ, ㅑ, ㅓ...
+    if (world.id === 'numbers_kr') return item.korean2       // 하나, 둘, 셋...
+    if (world.id === 'numbers_en') return item.pronunciation  // 영어 발음 (예: 원, 투, 쓰리...)
+    return wordDisplay                                       // 알파벳은 단어 전체
+  })()
+
+  // ── 스테이지별로 선택지에 보여줄 "정답 단어"를 결정해요
   // - 숫자: 숫자 대신 한글/영어 단어 (예: 4 → 사, four)
   // - 자음/모음: 자모 글자 대신 단어의 첫 글자 (예: ㄱ → 기, ㅏ → 아)
   const getItemChoiceWord = (o) => {
@@ -658,8 +693,34 @@ function FillBlankExercise({ item, world, character, label, onAnswer }) {
           />
         )}
         <p className="font-jua text-4xl md:text-6xl text-gray-800">{blankWord}</p>
-        {item.word && (
-          <p className="font-gaegu font-bold text-xl md:text-3xl text-gray-500 mt-2">= {wordDisplay}</p>
+
+        {/* 힌트 영역: 버튼/텍스트 전환 시 카드 높이가 변하지 않도록 고정 높이를 줘요 */}
+        {/* h-14(56px) = 모바일 버튼 높이, md:h-16(64px) = 데스크탑 버튼 높이와 맞춰요 */}
+        {/* hintContent가 null이면 (예: 영어 숫자) 힌트 영역 자체를 숨겨요 */}
+        {hintContent && (
+          <div className="mt-3 h-14 md:h-16 flex items-center justify-center">
+            {showHint ? (
+              // 힌트 텍스트 (애니메이션으로 부드럽게 등장)
+              <motion.p
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="font-gaegu font-bold text-xl md:text-3xl text-gray-500"
+              >
+                = {hintContent}
+              </motion.p>
+            ) : (
+              // 힌트 보기 버튼 (font-gaegu 적용을 위해 인라인 스타일 병행)
+              <button
+                type="button"
+                onClick={handleShowHint}
+                className="hint-button font-gaegu"
+                aria-label="문제 힌트 보기"
+              >
+                <img src="/images/ui/hint.png" alt="" className="hint-button__icon" />
+                <span className="hint-button__label">힌트 보기</span>
+              </button>
+            )}
+          </div>
         )}
       </div>
 
