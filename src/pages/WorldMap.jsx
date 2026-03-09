@@ -28,7 +28,8 @@ export default function WorldMapPage() {
   const [loaded, setLoaded] = useState(false)
 
   // profile에서 캐릭터 정보를 가져와요
-  const character = profile ? getCharacterById(profile.characterId) : null
+  // Supabase는 스네이크케이스(character_id)로 반환해요 (기존 Dexie는 characterId였어요)
+  const character = profile ? getCharacterById(profile.character_id) : null
 
   // 화면이 처음 켜질 때 저장된 학습 진도를 불러와요
   useEffect(() => {

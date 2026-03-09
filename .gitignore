@@ -2,3 +2,7 @@ node_modules
 dist
 .DS_Store
 *.local
+# Supabase 환경변수 - GitHub에 올리면 안 돼요! (보안 키가 들어있어요)
+.env
+.env.local
+.env.production

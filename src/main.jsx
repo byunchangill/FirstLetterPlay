@@ -8,6 +8,8 @@ import ReactDOM from 'react-dom/client'
 // BrowserRouter: 주소창의 /world, /stage 같은 주소를 읽어주는 도우미
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
+// AuthProvider: 구글 로그인 상태를 앱 어디서든 쓸 수 있게 해줘요 (가장 바깥에 감싸야 해요)
+import { AuthProvider } from './context/AuthContext'
 // CharacterProvider: 선택한 캐릭터 정보를 앱 어디서든 쓸 수 있게 해줘요
 import { CharacterProvider } from './context/CharacterContext'
 import './index.css'
@@ -20,11 +22,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     {/* BrowserRouter: 여러 페이지로 이동할 수 있게 해주는 포장지 */}
     <BrowserRouter>
-      {/* CharacterProvider: 캐릭터 정보를 앱 전체에 공유해줘요 */}
-      <CharacterProvider>
-        {/* App: 실제 앱 화면이에요 */}
-        <App />
-      </CharacterProvider>
+      {/* AuthProvider: 로그인 정보를 앱 전체에 공유해줘요 (제일 바깥에 있어야 해요) */}
+      <AuthProvider>
+        {/* CharacterProvider: 캐릭터 정보를 앱 전체에 공유해줘요 */}
+        <CharacterProvider>
+          {/* App: 실제 앱 화면이에요 */}
+          <App />
+        </CharacterProvider>
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,
 )

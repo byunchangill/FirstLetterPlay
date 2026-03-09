@@ -47,7 +47,8 @@ export default function StagePage() {
   const { saveProgress, isStageUnlocked, loadProgress, getStageStars } = useProgress()
 
   // 내 캐릭터 정보
-  const character = profile ? getCharacterById(profile.characterId) : null
+  // Supabase는 스네이크케이스(character_id)로 반환해요 (기존 Dexie는 characterId였어요)
+  const character = profile ? getCharacterById(profile.character_id) : null
 
   // phase: 현재 어느 단계인지 (intro/easy/normal/hard/reward/failed)
   const [phase, setPhase] = useState('intro')
