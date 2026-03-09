@@ -19,6 +19,20 @@ updates:
     # PR 제목 앞에 붙을 접두어 (알아보기 쉽게)
     commit-message:
       prefix: "chore(deps)"
-    # 보안 업데이트만 자동으로 PR 생성 (일반 업데이트는 수동)
-    # 주석 처리된 아래 옵션을 활성화하면 모든 업데이트를 PR로 받습니다.
-    # open-pull-requests-limit: 10
+    # 관련 패키지를 묶어서 PR 하나로 만들어요
+    # → eslint + @eslint/js 가 따로 올라오면 버전 충돌이 생기는 걸 방지해요
+    groups:
+      eslint:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "eslint-plugin-*"
+          - "globals"
+      vite:
+        patterns:
+          - "vite"
+          - "@vitejs/*"
+      framer-motion:
+        patterns:
+          - "framer-motion"
+          - "motion-*"
