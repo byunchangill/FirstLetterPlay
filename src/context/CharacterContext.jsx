@@ -7,6 +7,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './AuthContext'
+import { MAX_LEVEL, getExpForLevel } from '../data/characters'
 
 // 캐릭터 정보를 전역으로 공유하는 Context
 const CharacterContext = createContext(null)
@@ -151,18 +152,29 @@ export function CharacterProvider({ children }) {
     return profileData
   }
 
-  // addExp: 경험치를 추가해요. 경험치가 100이 되면 레벨업해요!
+  // addExp: 경험치를 추가해요.
+  // 레벨마다 필요한 경험치가 달라요! (초반은 적게, 점점 많이 필요해요)
+  // 예: 레벨 1→2는 30 EXP, 레벨 7→8은 160 EXP
   async function addExp(amount) {
     if (!growth || !user) return growth
 
-    const EXP_PER_LEVEL = 100
     let newExp = growth.exp + amount
     let newLevel = growth.level
 
-    // 경험치가 100 이상이면 레벨을 올리고 경험치를 깎아요
-    while (newExp >= EXP_PER_LEVEL) {
-      newExp -= EXP_PER_LEVEL
+    // 현재 레벨에서 필요한 경험치를 확인하고, 넘으면 레벨업해요
+    // 최대 레벨(MAX_LEVEL)에 도달하면 더 이상 레벨업하지 않아요
+    let requiredExp = getExpForLevel(newLevel)
+    while (newLevel < MAX_LEVEL && newExp >= requiredExp) {
+      newExp -= requiredExp
       newLevel++
+      requiredExp = getExpForLevel(newLevel)
+    }
+
+    // 최대 레벨이면 경험치가 넘쳐도 레벨업하지 않고 현재 레벨 필요치에서 멈춰요
+    if (newLevel >= MAX_LEVEL) {
+      newLevel = MAX_LEVEL
+      const maxLevelExp = getExpForLevel(MAX_LEVEL)
+      if (newExp > maxLevelExp) newExp = maxLevelExp
     }
 
     const leveledUp = newLevel > growth.level

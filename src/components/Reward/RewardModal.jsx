@@ -8,11 +8,20 @@ import { motion } from 'framer-motion'
 import StarDisplay from '../common/StarDisplay'
 import BigButton from '../common/BigButton'
 import ProgressBar from '../common/ProgressBar'
-import { getCharacterLevel } from '../../data/characters'
+import { getCharacterLevel, getExpForLevel, MAX_LEVEL } from '../../data/characters'
 
 export default function RewardModal({ rewardData, character, onNext, onMap, hasNextStage }) {
   // 받은 별, 경험치, 레벨업 여부, 새로운 레벨 정보
   const { stars, exp, leveledUp, newLevel } = rewardData
+
+  // 현재 레벨에서 다음 레벨까지 필요한 총 경험치예요
+  // 최대 레벨이면 해당 레벨의 필요치를 그대로 사용해요
+  const isMaxLevel = newLevel >= MAX_LEVEL
+  const expNeeded = getExpForLevel(newLevel)
+
+  // 경험치 퍼센트 계산 (진행바에 사용)
+  // 최대 레벨이면 항상 100%로 표시해요
+  const expPercent = isMaxLevel ? 100 : Math.round((rewardData.currentExp / expNeeded) * 100)
 
   return (
     <motion.div
@@ -66,14 +75,16 @@ export default function RewardModal({ rewardData, character, onNext, onMap, hasN
         <div className="flex justify-between items-end px-1 -mb-1">
           <p className="font-jua text-lg md:text-xl text-gray-700">+{exp} EXP</p>
           <p className="font-jua text-base md:text-lg" style={{ color: character.color }}>
-            {Math.round(rewardData.currentExp)}%
+            {/* 최대 레벨이면 "MAX!" 표시, 아니면 퍼센트 표시 */}
+            {isMaxLevel ? 'MAX!' : `${expPercent}%`}
           </p>
         </div>
 
         {/* 경험치 진행도 막대 (다음 레벨까지) */}
+        {/* 레벨마다 필요한 경험치가 다르므로 현재 레벨 기준으로 계산해요 */}
         <ProgressBar
-          current={rewardData.currentExp}
-          total={100}
+          current={isMaxLevel ? expNeeded : rewardData.currentExp}
+          total={expNeeded}
           color={character.color}
           height="h-3 md:h-4"
         />
